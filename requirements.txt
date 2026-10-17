@@ -1,0 +1,27 @@
+# Core
+torch>=2.2
+torchvision>=0.17
+timm>=1.0
+datasets>=2.19
+numpy>=1.26
+pillow>=10.0
+pyyaml>=6.0
+tqdm>=4.66
+
+# Analysis & visualization
+matplotlib>=3.8
+seaborn>=0.13
+pandas>=2.1
+scikit-learn>=1.4
+imagehash>=4.3
+pyspellchecker>=0.8
+nltk>=3.8
+
+# Tuning
+optuna>=3.6
+
+# Experiment tracking (W&B integration is added in a later step)
+wandb>=0.17
+
+# Dev
+pytest>=8.0

@@ -1,0 +1,32 @@
+# Shared defaults. Every other config inherits from this file with
+#   defaults: base.yaml
+# and only lists what it changes.
+
+seed: 42
+deterministic: false     # true = bit-exact repeatability, slower
+device: auto             # auto | cpu | cuda | cuda:1 | mps
+run_name: null           # null -> "<task>_<mode>"
+
+paths:
+  data_dir: data                       # local machine
+  data_dir_colab: /content/data        # or /content/drive/MyDrive/cub-cache to keep it between sessions
+  data_dir_kaggle: /kaggle/working/data
+  output_dir: outputs
+
+tracker:
+  name: local            # noop | local  (wandb added later)
+
+data:
+  img_size: 224
+  batch_size: 64
+  num_workers: 2
+  val_fraction: 0.1      # stratified split carved out of the official train set
+
+train:
+  epochs: 30
+  lr: 3.0e-4
+  weight_decay: 0.05
+  optimizer: adamw
+  scheduler: cosine
+  amp: true              # mixed precision on GPU
+  early_stopping_patience: 8

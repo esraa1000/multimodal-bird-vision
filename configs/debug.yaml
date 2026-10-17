@@ -1,0 +1,16 @@
+# Tiny run on random data to check that the environment and pipeline work.
+#   python -m src.cli train --config configs/debug.yaml
+defaults: base.yaml
+task: debug
+run_name: debug
+
+model:
+  num_classes: 10
+
+data:
+  img_size: 32
+  batch_size: 16
+
+train:
+  epochs: 3
+  lr: 1.0e-3

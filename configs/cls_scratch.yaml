@@ -1,0 +1,22 @@
+# CNN encoder trained from scratch (owner: M3). Fields under `model` are
+# passed to the model class registered as `model.name`.
+defaults: base.yaml
+task: classification
+run_name: cls_scratch
+
+model:
+  name: scratch_cnn
+  num_classes: 200
+  params:
+    depth: 4
+    width: 64
+    dropout: 0.3
+  pretrained: false
+
+data:
+  augment: strong        # none | light | strong
+  normalize: dataset     # dataset mean/std (computed in EDA)
+
+train:
+  epochs: 40
+  lr: 1.0e-3

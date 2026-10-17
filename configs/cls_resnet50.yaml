@@ -1,0 +1,21 @@
+# Transfer learning from ImageNet (owner: M4).
+defaults: base.yaml
+task: classification
+run_name: cls_resnet50
+
+model:
+  name: timm_encoder
+  num_classes: 200
+  params:
+    backbone: resnet50
+  pretrained: true
+  freeze_backbone: false   # true = linear probe
+  backbone_lr_mult: 0.1    # smaller LR for pretrained layers when fine-tuning
+
+data:
+  augment: strong
+  normalize: imagenet
+
+train:
+  epochs: 25
+  lr: 1.0e-3
