@@ -1,0 +1,8 @@
+# No credentials needed in offline mode. Override tracker.mode=online to upload.
+defaults: debug.yaml
+
+tracker:
+  name: wandb
+  project: multimodal-bird-vision
+  mode: offline
+  tags: [debug]

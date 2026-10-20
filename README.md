@@ -45,6 +45,63 @@ python -m src.cli predict  --config configs/cls_scratch.yaml --ckpt outputs/<run
 Each run writes to `outputs/<run_name>_<timestamp>/`:
 `config.yaml` (the resolved config plus git commit and hardware), `metrics.jsonl`, `summary.json`, and checkpoints.
 
+## Weights & Biases tracking
+
+The W&B tracker records configuration, metrics, summaries, checkpoint artifacts,
+and figures. It also keeps the local JSON/YAML records described above. The
+default tracker remains `local`; W&B is loaded only when selected.
+
+First try the debug task offline (no login or upload):
+
+```bash
+python -m src.cli train --config configs/debug_wandb.yaml
+```
+
+For online tracking, authenticate in your terminal, then select online mode:
+
+```bash
+wandb login
+python -m src.cli train --config configs/debug_wandb.yaml tracker.mode=online
+```
+
+For a team workspace, append `tracker.entity=YOUR_TEAM` to the training command.
+`WANDB_API_KEY` can be supplied through environment variables or Colab/Kaggle
+secrets instead of interactive login. Never put API keys in configs or Git.
+
+To enable tracking for another task, add the following to its YAML config:
+
+```yaml
+tracker:
+  name: wandb
+  project: multimodal-bird-vision
+  mode: online              # online | offline | disabled
+  # entity: YOUR_TEAM
+  # group: scratch-baseline
+  # tags: [classification, scratch]
+  # notes: First baseline experiment
+```
+
+Classification, colorization, and captioning are still placeholders; use the
+debug task to check tracking until those tasks are implemented. Task code uses
+the existing `Tracker` interface: `log_metrics`, `log_summary`, `log_artifact`,
+and `log_figure`. Figures appear as W&B images and downloadable artifacts.
+The `step` argument is recorded as the `trainer/step` chart axis, independently
+of W&B's internal counter, so logging figures between epochs does not skip
+metrics. Exceptions inside the tracker context mark the W&B run as failed.
+
+Offline W&B runs are stored under `outputs/<run>/wandb/`. To upload one later:
+
+```bash
+wandb sync outputs/<run>/wandb/offline-run-<timestamp>-<id>
+```
+
+Run tracking checks without downloading data or installing PyTorch:
+
+```bash
+pip install wandb pyyaml pytest
+python -m pytest tests/test_wandb_tracker.py
+```
+
 ## Project structure
 
 ```

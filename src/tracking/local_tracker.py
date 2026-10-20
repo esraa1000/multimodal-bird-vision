@@ -8,7 +8,7 @@ Works with no account or internet. Each run folder gets::
     ├── summary.json     # final/best values
     └── artifacts.json   # list of files attached to the run
 
-The W&B tracker (added later) implements the same interface.
+The W&B tracker extends this tracker to keep local records as well.
 """
 
 from __future__ import annotations

@@ -20,7 +20,7 @@ nltk>=3.8
 # Tuning
 optuna>=3.6
 
-# Experiment tracking (W&B integration is added in a later step)
+# Experiment tracking
 wandb>=0.17
 
 # Dev

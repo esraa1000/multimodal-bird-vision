@@ -14,7 +14,7 @@ paths:
   output_dir: outputs
 
 tracker:
-  name: local            # noop | local  (wandb added later)
+  name: local            # noop | local | wandb
 
 data:
   img_size: 224
