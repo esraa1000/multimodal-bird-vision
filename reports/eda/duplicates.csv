@@ -1,0 +1,15 @@
+split_a,index_a,label_a,split_b,index_b,label_b,distance,kind,same_label
+train,774,Bronzed Cowbird,test,661,Bronzed Cowbird,0,train-test,True
+train,1712,Pigeon Guillemot,train,1731,Pigeon Guillemot,0,train-train,True
+train,5315,Swainson Warbler,train,5333,Swainson Warbler,0,train-train,True
+test,565,Chuck will Widow,test,2974,Whip poor Will,0,test-test,False
+test,2368,Red legged Kittiwake,test,2374,Red legged Kittiwake,0,test-test,True
+test,4004,Summer Tanager,test,4026,Summer Tanager,0,test-test,True
+test,3264,Brewer Sparrow,test,3276,Brewer Sparrow,2,test-test,True
+train,5277,Prothonotary Warbler,test,5115,Prothonotary Warbler,2,train-test,True
+train,2529,Horned Lark,test,4115,Caspian Tern,4,train-test,False
+train,46,Laysan Albatross,train,57,Laysan Albatross,4,train-train,True
+train,215,Rhinoceros Auklet,test,2836,Brown Pelican,4,train-test,False
+train,360,Bobolink,test,215,Red winged Blackbird,4,train-test,False
+test,1771,Ivory Gull,test,2329,Ringed Kingfisher,4,test-test,False
+test,816,Black billed Cuckoo,test,828,Black billed Cuckoo,4,test-test,True
