@@ -14,7 +14,7 @@ model:
   pretrained: false
 
 data:
-  augment: strong        # none | light | strong
+  augment: light
   normalize: dataset     # dataset mean/std (computed in EDA)
 
 train:
