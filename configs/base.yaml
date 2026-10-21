@@ -21,6 +21,7 @@ data:
   batch_size: 64
   num_workers: 2
   val_fraction: 0.1      # stratified split carved out of the official train set
+  split_file: configs/data/split_seed42.json   # train/val file names (duplicates already excluded)
 
 train:
   epochs: 30
