@@ -1,0 +1,6 @@
+split,file_name,reason
+train,Bronzed_Cowbird_0074_24045.jpg,duplicate of test #661 (train-test leakage)
+train,Prothonotary_Warbler_0020_174122.jpg,duplicate of test #5115 (train-test leakage)
+train,Pigeon_Guillemot_0081_40339.jpg,duplicate of train #1712
+train,Swainson_Warbler_0049_794880.jpg,duplicate of train #5315
+train,Laysan_Albatross_0096_673.jpg,duplicate of train #46

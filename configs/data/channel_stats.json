@@ -1,0 +1,14 @@
+{
+ "mean": [
+  0.4825,
+  0.4913,
+  0.4249
+ ],
+ "std": [
+  0.228,
+  0.2239,
+  0.2591
+ ],
+ "computed_on": "train split (val and test excluded), resize 256 + center crop 224",
+ "split_file": "split_seed42.json"
+}
