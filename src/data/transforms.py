@@ -4,7 +4,7 @@ Chosen from the config with::
 
     data:
       img_size: 224
-      augment: none | light        # training only; val/test never get augmentation
+      augment: none | light | strong   # training only; val/test never get augmentation
       normalize: dataset | imagenet
 
 * ``dataset``: our CUB train-split mean/std (configs/data/channel_stats.json),
@@ -36,17 +36,33 @@ def get_mean_std(normalize: str) -> tuple[list[float], list[float]]:
     raise ValueError(f"Unknown normalize '{normalize}'. Use 'dataset' or 'imagenet'.")
 
 
+def average_color() -> tuple[int, int, int]:
+    """CUB train mean as a 0-255 RGB colour (fills the corners left by rotation)."""
+    mean, _ = get_mean_std("dataset")
+    return tuple(round(m * 255) for m in mean)
+
+
 def build_transforms(train: bool, img_size: int = 224, augment: str = "none",
                      normalize: str = "dataset") -> T.Compose:
     """PIL image -> normalized tensor of shape (3, img_size, img_size)."""
     resize_to = round(img_size * 256 / 224)   # 256 for 224: the standard resize-then-crop ratio
+    after_normalize = []                      # steps that work on the normalized tensor
 
     if not train or augment == "none": # for test/val or no augmentation, just resize and center crop
         steps = [T.Resize(resize_to), T.CenterCrop(img_size)]
     elif augment == "light": # for training with light augmentation, resize and random crop/flip
         steps = [T.RandomResizedCrop(img_size, scale=(0.5, 1.0)), T.RandomHorizontalFlip()]
+    elif augment == "strong":
+        steps = [
+            T.RandomResizedCrop(img_size, scale=(0.35, 1.0)),
+            T.RandomHorizontalFlip(),
+            T.RandomRotation(15, fill=average_color()),
+            T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.2, hue=0.0),  # no hue: colour separates species
+        ]
+        # 0 after normalizing = the average colour, so erased patches are filled with it
+        after_normalize = [T.RandomErasing(p=0.25, scale=(0.02, 0.15), value=0)]
     else:
-        raise ValueError(f"Unknown augment '{augment}'. Use 'none' or 'light'.")
+        raise ValueError(f"Unknown augment '{augment}'. Use 'none', 'light' or 'strong'.")
 
     mean, std = get_mean_std(normalize)
-    return T.Compose(steps + [T.ToTensor(), T.Normalize(mean, std)]) # turns PIL image into numbers from 0 to 1, then normalizes 
+    return T.Compose(steps + [T.ToTensor(), T.Normalize(mean, std)] + after_normalize) # turns PIL image into numbers from 0 to 1, then normalizes
