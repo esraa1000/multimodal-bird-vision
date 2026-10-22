@@ -13,7 +13,7 @@ model:
   backbone_lr_mult: 0.1    # smaller LR for pretrained layers when fine-tuning
 
 data:
-  augment: strong
+  augment: light
   normalize: imagenet
 
 train:

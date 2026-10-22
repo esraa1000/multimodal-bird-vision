@@ -12,10 +12,11 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 def detect_environment() -> str:
     """Return ``"kaggle"``, ``"colab"`` or ``"local"``."""
-    if os.environ.get("KAGGLE_KERNEL_RUN_TYPE") or Path("/kaggle/input").exists():
-        return "kaggle"
+    # Colab first: recent Colab images also have a /kaggle folder.
     if os.environ.get("COLAB_RELEASE_TAG") or Path("/content").exists():
         return "colab"
+    if os.environ.get("KAGGLE_KERNEL_RUN_TYPE") or Path("/kaggle/input").exists():
+        return "kaggle"
     return "local"
 
 
