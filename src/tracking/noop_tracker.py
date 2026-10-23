@@ -10,6 +10,9 @@ from src.tracking.base import Tracker
 
 @TRACKERS.register("noop")
 class NoopTracker(Tracker):
+    def __init__(self, **_: object):
+        """Accepts and ignores settings, so ``tracker.name=noop`` works with any config."""
+
     def start(self, run_name: str, config: dict, run_dir: Path) -> None:
         pass
 

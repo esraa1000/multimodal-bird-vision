@@ -32,11 +32,6 @@ class _NotImplementedTask(Task):
         self._fail()
 
 
-@TASKS.register("classification")
-class ClassificationTask(_NotImplementedTask):
-    owner, milestone = "M3/M4", "1"
-
-
 @TASKS.register("colorization")
 class ColorizationTask(_NotImplementedTask):
     owner, milestone = "TBD", "2"

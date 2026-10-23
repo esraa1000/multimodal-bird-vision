@@ -44,8 +44,12 @@ def get_data_dir(paths_cfg: dict) -> Path:
 def make_run_dir(output_dir: str | Path, run_name: str) -> Path:
     """Create ``outputs/<run_name>_<timestamp>/`` for one run's files."""
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    run_dir = resolve_path(output_dir) / f"{run_name}_{stamp}"
-    run_dir.mkdir(parents=True, exist_ok=True)
+    base = resolve_path(output_dir) / f"{run_name}_{stamp}"
+    run_dir, n = base, 1
+    while run_dir.exists():          # two runs started in the same second
+        n += 1
+        run_dir = base.with_name(f"{base.name}-{n}")
+    run_dir.mkdir(parents=True)
     return run_dir
 
 

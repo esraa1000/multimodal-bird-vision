@@ -1,0 +1,13 @@
+# Architecture variant: residual blocks. 2 residual blocks hold as many convs
+# (and about as many parameters, 11M) as 4 plain blocks, so compare against
+#   python -m src.cli train --config configs/cls_scratch.yaml model.params.blocks_per_stage=4
+defaults: cls_scratch.yaml
+run_name: cls_scratch_residual
+
+tracker:
+  tags: [classification, scratch, residual]
+
+model:
+  params:
+    residual: true
+    blocks_per_stage: 2

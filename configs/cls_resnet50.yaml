@@ -9,10 +9,10 @@ tracker:
 model:
   name: timm_encoder
   num_classes: 200
-  params:
+  params:                  # passed to the "timm_encoder" class (not written yet)
     backbone: resnet50
-  pretrained: true
-  freeze_backbone: false   # true = linear probe
+    pretrained: true
+  freeze_backbone: false   # true = linear probe (only the head trains)
   backbone_lr_mult: 0.1    # smaller LR for pretrained layers when fine-tuning
 
 data:

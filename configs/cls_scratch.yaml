@@ -1,5 +1,5 @@
-# CNN encoder trained from scratch (owner: M3). Fields under `model` are
-# passed to the model class registered as `model.name`.
+# CNN encoder trained from scratch: the baseline (src/models/scratch_cnn.py).
+# Keys under model.params are passed to ScratchCNN.
 defaults: [base.yaml, tracker_wandb.yaml]
 task: classification
 run_name: cls_scratch
@@ -10,16 +10,19 @@ tracker:
 model:
   name: scratch_cnn
   num_classes: 200
+  dropout: 0.3             # before the classification head
   params:
-    depth: 4
+    depth: 4               # stages: 64 -> 128 -> 256 -> 512 channels
     width: 64
-    dropout: 0.3
-  pretrained: false
+    blocks_per_stage: 2
+    residual: false
 
 data:
-  augment: light
-  normalize: dataset     # dataset mean/std (computed in EDA)
+  augment: light           # none | light | strong (compare them: the augmentation ablation)
+  normalize: dataset       # dataset mean/std (computed in EDA)
 
 train:
   epochs: 40
   lr: 1.0e-3
+  warmup_epochs: 2         # a few small steps first: BatchNorm statistics settle before the full lr
+  label_smoothing: 0.1     # softer targets; helps with similar-looking species

@@ -27,7 +27,15 @@ train:
   epochs: 30
   lr: 3.0e-4
   weight_decay: 0.05
-  optimizer: adamw
-  scheduler: cosine
+  optimizer: adamw       # adamw | adam | sgd
+  scheduler: cosine      # cosine | none
+  warmup_epochs: 0       # linear warm-up from 10% of lr
+  min_lr: 0.0            # floor of the cosine schedule
+  label_smoothing: 0.0
   amp: true              # mixed precision on GPU
-  early_stopping_patience: 8
+  grad_clip: null        # e.g. 1.0 to clip the gradient norm
+  early_stopping_patience: 8   # null = never stop early
+  max_batches: null      # limit batches per epoch (quick pipeline checks only)
+  upload_checkpoint: true      # upload best.pt to the tracker at the end (turn off for tuning trials)
+  progress: true         # progress bar per epoch
+  resume: null           # last.pt of an interrupted run (or pass --resume)

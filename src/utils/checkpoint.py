@@ -20,7 +20,10 @@ def save_checkpoint(
     epoch: int = 0,
     metrics: dict | None = None,
     config: dict | None = None,
+    extra: dict | None = None,
 ) -> Path:
+    """``extra`` holds anything else worth keeping (class names, best score so far,
+    history, AMP scaler state)."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     state = {
@@ -30,6 +33,7 @@ def save_checkpoint(
         "epoch": epoch,
         "metrics": metrics or {},
         "config": config or {},
+        "extra": extra or {},
     }
     torch.save(state, path)
     return path

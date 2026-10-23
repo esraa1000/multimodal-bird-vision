@@ -5,6 +5,7 @@ Examples::
     python -m src.cli prepare-data
     python -m src.cli train    --task classification --config configs/cls_scratch.yaml
     python -m src.cli train    --config configs/cls_scratch.yaml train.lr=1e-3 train.epochs=5
+    python -m src.cli train    --config configs/cls_scratch.yaml --resume outputs/<run>/last.pt
     python -m src.cli evaluate --config configs/cls_scratch.yaml --ckpt outputs/<run>/best.pt --split test
     python -m src.cli predict  --config configs/cls_scratch.yaml --ckpt outputs/<run>/best.pt --image bird.jpg
     python -m src.cli list
@@ -45,7 +46,10 @@ def _build_task(cfg: Config):
 def _start_run(cfg: Config, mode: str):
     """Seed, create the run folder, open the tracker with full run metadata."""
     seed_everything(cfg.get("seed", 42), cfg.get("deterministic", False))
-    run_name = cfg.get("run_name") or f"{cfg.task}_{mode}"
+    if mode == "train":
+        run_name = cfg.get("run_name") or f"{cfg.task}_train"
+    else:   # e.g. "cls_scratch_eval-test", so evaluations are not mistaken for training runs
+        run_name = f"{cfg.get('run_name') or cfg.task}_{mode}"
     run_dir = make_run_dir(cfg.get_path("paths.output_dir", "outputs"), run_name)
 
     cfg.meta = {
@@ -61,6 +65,8 @@ def _start_run(cfg: Config, mode: str):
 
 def cmd_train(args: argparse.Namespace) -> None:
     cfg = _load(args)
+    if args.resume:
+        cfg.set_path("train.resume", args.resume)
     tracker, run_dir = _start_run(cfg, "train")
     with tracker:
         result = _build_task(cfg).train(tracker, run_dir)
@@ -112,6 +118,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("train", help="train a model")
     add_common(p)
+    p.add_argument("--resume", help="last.pt of an interrupted run, to continue training from it")
     p.set_defaults(func=cmd_train)
 
     p = sub.add_parser("evaluate", help="evaluate a checkpoint")

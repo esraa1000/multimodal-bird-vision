@@ -45,6 +45,58 @@ python -m src.cli predict  --config configs/cls_scratch.yaml --ckpt outputs/<run
 Each run writes to `outputs/<run_name>_<timestamp>/`:
 `config.yaml` (the resolved config plus git commit and hardware), `metrics.jsonl`, `summary.json`, and checkpoints.
 
+## Classification (Task 1.2)
+
+First check the whole pipeline on the real data (a minute or two, CPU is fine, nothing uploaded):
+
+```bash
+python -m src.cli train --config configs/cls_smoke.yaml
+```
+
+Then train the from-scratch baseline (on a GPU: Colab/Kaggle):
+
+```bash
+python -m src.cli train --config configs/cls_scratch.yaml run_name=scratch_v1
+```
+
+A training run writes to its folder:
+
+| File | What it is |
+|---|---|
+| `best.pt` | weights with the best val accuracy (no optimizer state); uploaded to W&B at the end |
+| `last.pt` | the latest epoch including optimizer/scheduler state, to resume |
+| `training_curves.png` | train vs. val loss and accuracy |
+| `metrics.jsonl`, `summary.json` | per-epoch metrics, best val accuracy and epoch |
+
+On Colab, write outputs to Google Drive so they survive a disconnect, and resume from `last.pt`:
+
+```bash
+python -m src.cli train --config configs/cls_scratch.yaml paths.output_dir=/content/drive/MyDrive/bird-outputs
+python -m src.cli train --config configs/cls_scratch.yaml paths.output_dir=/content/drive/MyDrive/bird-outputs --resume /content/drive/MyDrive/bird-outputs/<run>/last.pt
+```
+
+Experiments (each one is a separate tracked run):
+
+```bash
+python -m src.cli train --config configs/cls_scratch.yaml data.augment=none   run_name=scratch_aug-none
+python -m src.cli train --config configs/cls_scratch.yaml data.augment=strong run_name=scratch_aug-strong
+python -m src.cli train --config configs/cls_scratch.yaml model.params.blocks_per_stage=4 run_name=scratch_plain4
+python -m src.cli train --config configs/cls_scratch_residual.yaml
+```
+
+Evaluate a trained model. Use `--split val` while developing, and the test set only for final numbers:
+
+```bash
+python -m src.cli evaluate --config configs/cls_scratch.yaml --ckpt outputs/<run>/best.pt --split test
+```
+
+This writes `metrics.json` (accuracy, top-5, macro precision/recall/F1), `predictions.csv` (one row per image),
+`per_class.csv`, `confusion_matrix.png` and `top_confused.png`. Predict one image:
+
+```bash
+python -m src.cli predict --config configs/cls_scratch.yaml --ckpt outputs/<run>/best.pt --image bird.jpg
+```
+
 ## Weights & Biases tracking
 
 The W&B tracker records configuration, metrics, summaries, checkpoint artifacts,

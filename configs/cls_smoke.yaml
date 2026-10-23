@@ -1,0 +1,25 @@
+# Pipeline check on the real data in a minute or two (CPU is fine):
+# tiny model, small images, a few batches per epoch, nothing uploaded.
+#   python -m src.cli train --config configs/cls_smoke.yaml
+# The accuracy is meaningless; it only proves data -> model -> trainer -> checkpoint works.
+defaults: cls_scratch.yaml
+run_name: cls_smoke
+
+tracker:
+  name: local
+
+model:
+  params:
+    depth: 3
+    width: 16
+
+data:
+  img_size: 64
+  batch_size: 16
+  num_workers: 0
+
+train:
+  epochs: 2
+  warmup_epochs: 0
+  max_batches: 5
+  upload_checkpoint: false
