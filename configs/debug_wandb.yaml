@@ -1,8 +1,7 @@
 # No credentials needed in offline mode. Override tracker.mode=online to upload.
-defaults: debug.yaml
+# Team, project and entity come from tracker_wandb.yaml.
+defaults: [debug.yaml, tracker_wandb.yaml]
 
 tracker:
-  name: wandb
-  project: multimodal-bird-vision
   mode: offline
   tags: [debug]

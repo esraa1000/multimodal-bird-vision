@@ -1,7 +1,10 @@
 # Transfer learning from ImageNet (owner: M4).
-defaults: base.yaml
+defaults: [base.yaml, tracker_wandb.yaml]
 task: classification
 run_name: cls_resnet50
+
+tracker:
+  tags: [classification, transfer]
 
 model:
   name: timm_encoder

@@ -64,7 +64,9 @@ wandb login
 python -m src.cli train --config configs/debug_wandb.yaml tracker.mode=online
 ```
 
-For a team workspace, append `tracker.entity=YOUR_TEAM` to the training command.
+The team workspace (`deep_learning_birds`) is set once in `configs/tracker_wandb.yaml`.
+The classification configs include it, so those runs go to the team project once you are logged in.
+Use `tracker.mode=offline` or `tracker.name=local` to run without uploading.
 `WANDB_API_KEY` can be supplied through environment variables or Colab/Kaggle
 secrets instead of interactive login. Never put API keys in configs or Git.
 

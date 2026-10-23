@@ -1,8 +1,11 @@
 # CNN encoder trained from scratch (owner: M3). Fields under `model` are
 # passed to the model class registered as `model.name`.
-defaults: base.yaml
+defaults: [base.yaml, tracker_wandb.yaml]
 task: classification
 run_name: cls_scratch
+
+tracker:
+  tags: [classification, scratch]
 
 model:
   name: scratch_cnn

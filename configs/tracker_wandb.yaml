@@ -1,0 +1,11 @@
+# Shared W&B settings for the whole team. Include it in a config with:
+#   defaults: [base.yaml, tracker_wandb.yaml]
+# Every member logs in with their own account (`wandb login`); never put API keys here.
+#
+# Run without uploading:   tracker.mode=offline   (upload later with `wandb sync`)
+# Run without W&B at all:  tracker.name=local
+tracker:
+  name: wandb
+  project: multimodal-bird-vision
+  entity: deep_learning_birds
+  mode: online              # online | offline | disabled
