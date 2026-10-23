@@ -1,0 +1,13 @@
+# Grid search: every combination of the values below, 3 x 2 x 3 = 18 trials.
+#   python -m src.cli tune --config configs/tune_grid.yaml --list         # show the plan
+#   python -m src.cli tune --config configs/tune_grid.yaml --shard 1/4    # member 1 of 4
+defaults: tune_base.yaml
+
+tune:
+  name: tune_grid_v1        # W&B group and output folder; change it for a new search
+  method: grid
+  metric: best/val_acc      # maximized
+  space:
+    train.lr: [3.0e-4, 1.0e-3, 3.0e-3]
+    train.weight_decay: [0.01, 0.1]
+    model.dropout: [0.1, 0.3, 0.5]

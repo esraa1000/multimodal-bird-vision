@@ -97,6 +97,41 @@ This writes `metrics.json` (accuracy, top-5, macro precision/recall/F1), `predic
 python -m src.cli predict --config configs/cls_scratch.yaml --ckpt outputs/<run>/best.pt --image bird.jpg
 ```
 
+## Hyperparameter tuning (grid vs. random search)
+
+Both searches tune `train.lr`, `train.weight_decay` and `model.dropout` on the scratch CNN with the
+same budget: 18 trials of 15 epochs each, same data, seed and model (`configs/tune_base.yaml`).
+Set `data.augment` there to the winner of the augmentation ablation first.
+
+The trial lists are fixed in advance, so the team splits each search with `--shard k/n`.
+With 4 members, each runs their slice of both searches (about 5 trials, roughly 40 minutes on a T4, per search):
+
+```bash
+python -m src.cli tune --config configs/tune_grid.yaml   --list            # show the planned trials
+python -m src.cli tune --config configs/tune_grid.yaml   --shard 1/4 paths.output_dir=/content/drive/MyDrive/bird-outputs
+python -m src.cli tune --config configs/tune_random.yaml --shard 1/4 paths.output_dir=/content/drive/MyDrive/bird-outputs
+```
+
+Member 2 uses `--shard 2/4`, and so on. Each trial is a normal W&B run named `tune_grid_v1_t03`, in the group
+`tune_grid_v1`. Results are also appended to `<output_dir>/<tune.name>/results.jsonl`. If a session
+disconnects, run the same command again: finished trials are skipped (`--rerun` forces them).
+A trial that diverges (for example, a too-high learning rate) is recorded as failed and the search continues.
+
+When all shards are done, compare the methods from W&B (any machine that is logged in):
+
+```bash
+python -m src.cli tune-report --config configs/tune_grid.yaml --config configs/tune_random.yaml
+```
+
+This writes to `reports/tuning/`:
+- `tuning_trials.csv`: every trial,
+- `tuning_comparison.json`: best score and values, trials to reach the best and to get within
+  2 points of the overall best, failures, and total time per method,
+- `tuning_comparison.png`: best-so-far curves and score vs. learning rate.
+
+Finally, retrain the best values for the full 40 epochs, for example:
+`python -m src.cli train --config configs/cls_scratch.yaml train.lr=... train.weight_decay=... model.dropout=... run_name=scratch_tuned`.
+
 ## Weights & Biases tracking
 
 The W&B tracker records configuration, metrics, summaries, checkpoint artifacts,

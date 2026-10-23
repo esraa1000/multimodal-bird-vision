@@ -9,8 +9,8 @@ Layout for the default ``depth=4, width=64`` on a 224x224 image::
     stage 4  maxpool, blocks_per_stage x block    -> 512 x  14 x  14   <- forward_features
     global average pool                           -> 512-d vector      <- forward
 
-Channels double whenever the resolution halves, so every stage costs about
-the same compute (~2.8 G multiply-adds in total, 4.7M parameters with plain blocks).
+Channels double whenever the resolution halves, so stages 2-4 cost the same
+compute (~0.7 G multiply-adds each, ~3.0 G in total; 4.7M parameters with plain blocks).
 
 * ``residual=False``: a block is conv3x3 -> BatchNorm -> ReLU (VGG style).
 * ``residual=True``: a block is two such convs with a skip connection

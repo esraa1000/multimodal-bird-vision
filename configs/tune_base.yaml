@@ -1,0 +1,16 @@
+# Shared settings for every tuning trial. tune_grid.yaml and tune_random.yaml
+# both inherit this, so the two methods are compared on exactly the same
+# model, data, seed and per-trial budget; only the values they try differ.
+defaults: cls_scratch.yaml
+
+data:
+  augment: light            # <- set to the winner of the augmentation ablation
+
+train:
+  epochs: 15                # short trials (~8 min on a T4); retrain the best values for the full 40
+  early_stopping_patience: null   # every trial gets the same number of epochs
+  upload_checkpoint: false  # don't fill W&B storage with 36 trial checkpoints
+  progress: false           # one log line per epoch instead of progress bars
+
+tracker:
+  tags: [classification, scratch, tuning]

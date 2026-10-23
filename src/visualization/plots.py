@@ -8,6 +8,7 @@ import matplotlib
 
 matplotlib.use("Agg")   # save to file, no window needed
 import matplotlib.pyplot as plt  # noqa: E402
+import matplotlib.ticker  # noqa: E402
 import numpy as np  # noqa: E402
 
 
@@ -55,4 +56,39 @@ def plot_top_confused_pairs(pairs: list[dict], out_path: str | Path, title: str 
     ax.barh(labels, counts)
     ax.set(title=title, xlabel="number of misclassified images")
     ax.grid(axis="x", alpha=0.3)
+    return _save(fig, out_path)
+
+
+def plot_tuning_comparison(trials_by_method: dict[str, list[dict]], out_path: str | Path,
+                           param: str, metric_label: str = "best val accuracy") -> Path:
+    """Left: best score found so far vs. number of trials (who finds good values sooner).
+    Right: each trial's score against one hyperparameter (which values the search tried)."""
+    fig, (ax_best, ax_param) = plt.subplots(1, 2, figsize=(12, 4.5))
+    for label, trials in trials_by_method.items():
+        trials = sorted(trials, key=lambda r: r["trial_id"])
+        if not trials:
+            continue
+        scores = np.array([r["score"] for r in trials])
+        x = np.arange(1, len(scores) + 1)
+        line, = ax_best.step(x, np.maximum.accumulate(scores), where="post", label=label)
+        ax_best.scatter(x, scores, s=14, alpha=0.4, color=line.get_color())
+        values = [r["params"].get(param) for r in trials]
+        ax_param.scatter(values, scores, s=30, alpha=0.8, color=line.get_color(), label=label)
+        best = int(scores.argmax())
+        ax_param.scatter([values[best]], [scores[best]], s=160, marker="*", color=line.get_color(),
+                         edgecolors="black")
+
+    all_values = [r["params"].get(param) for t in trials_by_method.values() for r in t]
+    numeric = [v for v in all_values if isinstance(v, (int, float))]
+    if numeric and min(numeric) > 0 and max(numeric) / min(numeric) >= 10:
+        ax_param.set_xscale("log")   # e.g. learning rates spanning orders of magnitude
+        ax_param.xaxis.set_major_locator(matplotlib.ticker.LogLocator(subs=(1.0, 2.0, 5.0)))
+        ax_param.xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v:g}"))
+        ax_param.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
+    ax_best.xaxis.set_major_locator(matplotlib.ticker.MaxNLocator(integer=True))
+    ax_best.set(title="Best score so far", xlabel="trials completed", ylabel=metric_label)
+    ax_param.set(title=f"Score vs. {param} (star = best)", xlabel=param, ylabel=metric_label)
+    for ax in (ax_best, ax_param):
+        ax.grid(alpha=0.3)
+        ax.legend(fontsize=8)
     return _save(fig, out_path)

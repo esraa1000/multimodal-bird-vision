@@ -8,6 +8,8 @@ Examples::
     python -m src.cli train    --config configs/cls_scratch.yaml --resume outputs/<run>/last.pt
     python -m src.cli evaluate --config configs/cls_scratch.yaml --ckpt outputs/<run>/best.pt --split test
     python -m src.cli predict  --config configs/cls_scratch.yaml --ckpt outputs/<run>/best.pt --image bird.jpg
+    python -m src.cli tune     --config configs/tune_grid.yaml --shard 1/4
+    python -m src.cli tune-report --config configs/tune_grid.yaml --config configs/tune_random.yaml
     python -m src.cli list
 
 Anything after the named arguments in the form ``key.subkey=value`` overrides
@@ -63,14 +65,42 @@ def _start_run(cfg: Config, mode: str):
     return tracker, run_dir
 
 
+def _train(cfg: Config) -> dict:
+    """One tracked training run (used by ``train`` and by every ``tune`` trial)."""
+    tracker, run_dir = _start_run(cfg, "train")
+    with tracker:
+        return _build_task(cfg).train(tracker, run_dir)
+
+
 def cmd_train(args: argparse.Namespace) -> None:
     cfg = _load(args)
     if args.resume:
         cfg.set_path("train.resume", args.resume)
-    tracker, run_dir = _start_run(cfg, "train")
-    with tracker:
-        result = _build_task(cfg).train(tracker, run_dir)
-    print(json.dumps(result, indent=2))
+    print(json.dumps(_train(cfg), indent=2))
+
+
+def cmd_tune(args: argparse.Namespace) -> None:
+    from src.tuning import make_trials, parse_shard, run_tuning, select_shard
+
+    cfg = _load(args)
+    if "tune" not in cfg:
+        raise SystemExit(f"{args.config} has no 'tune' section (see configs/tune_grid.yaml).")
+    shard = parse_shard(args.shard)
+    if args.list:
+        trials = select_shard(make_trials(cfg.tune), *shard)
+        print(f"{cfg.tune.name} ({cfg.tune.method}), shard {shard[0]}/{shard[1]}: {len(trials)} trials")
+        for t in trials:
+            print(f"  trial {t['trial_id']:>3}: {t['params']}")
+        return
+    records = run_tuning(cfg, shard, _train, skip_done=not args.rerun)
+    print(json.dumps(records, indent=2))
+
+
+def cmd_tune_report(args: argparse.Namespace) -> None:
+    from src.tuning.report import build_report
+
+    cfgs = [load_config(path, args.overrides) for path in args.config]
+    build_report(cfgs, source=args.source, out_dir=args.out)
 
 
 def cmd_evaluate(args: argparse.Namespace) -> None:
@@ -133,6 +163,22 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--image", required=True, help="path to an image file")
     p.add_argument("--gradcam", action="store_true", help="also save a Grad-CAM heatmap")
     p.set_defaults(func=cmd_predict)
+
+    p = sub.add_parser("tune", help="run (a shard of) a grid or random hyperparameter search")
+    add_common(p)
+    p.add_argument("--shard", help="k/n: run every n-th trial starting at the k-th, e.g. 2/4")
+    p.add_argument("--list", action="store_true", help="only print the planned trials")
+    p.add_argument("--rerun", action="store_true", help="also rerun trials already finished")
+    p.set_defaults(func=cmd_tune)
+
+    p = sub.add_parser("tune-report", help="compare finished searches (e.g. grid vs. random)")
+    p.add_argument("--config", action="append", required=True,
+                   help="a tuning config; repeat for each search to compare")
+    p.add_argument("--source", default="wandb", choices=["wandb", "local"],
+                   help="read trials from W&B (whole team) or local results.jsonl files")
+    p.add_argument("--out", default="reports/tuning", help="folder for the CSV, JSON and figure")
+    p.add_argument("overrides", nargs="*", help="config overrides, e.g. paths.output_dir=...")
+    p.set_defaults(func=cmd_tune_report)
 
     p = sub.add_parser("prepare-data", help="download and cache the dataset")
     add_common(p, needs_task=False)

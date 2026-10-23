@@ -1,0 +1,16 @@
+# Random search with the same budget as the grid (18 trials) over ranges that
+# contain every grid value, so the comparison is fair.
+#   python -m src.cli tune --config configs/tune_random.yaml --list
+#   python -m src.cli tune --config configs/tune_random.yaml --shard 1/4
+defaults: tune_base.yaml
+
+tune:
+  name: tune_random_v1
+  method: random
+  n_trials: 18
+  seed: 42                  # same 18 values on every machine
+  metric: best/val_acc
+  space:
+    train.lr: {type: loguniform, low: 2.0e-4, high: 5.0e-3}
+    train.weight_decay: {type: loguniform, low: 5.0e-3, high: 0.2}
+    model.dropout: {type: uniform, low: 0.0, high: 0.6}

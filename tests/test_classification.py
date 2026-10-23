@@ -11,7 +11,6 @@ import json
 import numpy as np
 import pytest
 import torch
-from PIL import Image
 from torch.utils.data import DataLoader, TensorDataset
 
 from src.cli import main
@@ -113,77 +112,33 @@ def test_early_stopping(tmp_path):
 
 # ------------------------------------------------------------ CLI, end to end
 
-CLASSES = ["Albatross", "Cardinal", "Jay", "Wren"]
-
-
-@pytest.fixture
-def fake_cub(tmp_path):
-    from datasets import ClassLabel, Dataset, Features, Value
-    from datasets import Image as HFImage
-
-    rng = np.random.default_rng(0)
-    features = Features({"image": HFImage(), "label": ClassLabel(names=CLASSES),
-                         "file_name": Value("string")})
-
-    def make(split, per_class):
-        rows = {"image": [], "label": [], "file_name": []}
-        for c, name in enumerate(CLASSES):
-            for i in range(per_class):
-                colour = np.array([c * 60, 255 - c * 60, 128])          # each class has its own colour
-                pixels = colour + rng.integers(-20, 20, size=(40, 48, 3))
-                rows["image"].append(Image.fromarray(np.clip(pixels, 0, 255).astype(np.uint8)))
-                rows["label"].append(c)
-                rows["file_name"].append(f"{name}_{split}_{i:03d}.jpg")
-        Dataset.from_dict(rows, features=features).save_to_disk(str(tmp_path / "data" / "cub" / split))
-        return rows["file_name"]
-
-    train_names = make("train", 6)
-    make("test", 3)
-    is_val = lambda n: n.endswith(("_004.jpg", "_005.jpg"))  # noqa: E731
-    (tmp_path / "split.json").write_text(json.dumps({
-        "train": [n for n in train_names if not is_val(n)], "val": [n for n in train_names if is_val(n)]}))
-    Image.fromarray(np.full((40, 48, 3), (0, 255, 128), dtype=np.uint8)).save(tmp_path / "bird.jpg")
-    return tmp_path
-
-
-def _overrides(root):
-    return [
-        f"paths.data_dir={(root / 'data').as_posix()}",
-        f"paths.output_dir={(root / 'outputs').as_posix()}",
-        f"data.split_file={(root / 'split.json').as_posix()}",
-        "tracker.name=local", "model.num_classes=4", "model.params.depth=2", "model.params.width=8",
-        "data.img_size=32", "data.batch_size=4", "data.num_workers=0",
-        "train.epochs=2", "train.warmup_epochs=1", "train.progress=false",
-    ]
-
-
 def test_cli_train_evaluate_predict(fake_cub, capsys):
     config = str(PROJECT_ROOT / "configs" / "cls_scratch.yaml")
-    outputs = fake_cub / "outputs"
+    outputs = fake_cub.root / "outputs"
 
-    main(["train", "--config", config, *_overrides(fake_cub)])
+    main(["train", "--config", config, *fake_cub.overrides])
     (train_dir,) = outputs.glob("cls_scratch_2*")
     best, last = train_dir / "best.pt", train_dir / "last.pt"
     assert best.is_file() and last.is_file()
-    assert torch.load(best, weights_only=False)["extra"]["class_names"] == CLASSES
+    assert torch.load(best, weights_only=False)["extra"]["class_names"] == fake_cub.classes
 
-    main(["evaluate", "--config", config, "--ckpt", str(best), "--split", "test", *_overrides(fake_cub)])
+    main(["evaluate", "--config", config, "--ckpt", str(best), "--split", "test", *fake_cub.overrides])
     (eval_dir,) = outputs.glob("cls_scratch_eval-test_*")
     with open(eval_dir / "predictions.csv", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
-    assert len(rows) == 12 and rows[0]["true_name"] in CLASSES
+    assert len(rows) == 12 and rows[0]["true_name"] in fake_cub.classes
     metrics = json.loads((eval_dir / "metrics.json").read_text())
     assert metrics["num_images"] == 12 and 0 <= metrics["f1_macro"] <= 1
     assert (eval_dir / "confusion_matrix.png").is_file()
     assert (eval_dir / "per_class.csv").is_file()
 
     capsys.readouterr()
-    main(["predict", "--config", config, "--ckpt", str(best), "--image", str(fake_cub / "bird.jpg"),
-          *_overrides(fake_cub)])
+    main(["predict", "--config", config, "--ckpt", str(best), "--image", str(fake_cub.image),
+          *fake_cub.overrides])
     prediction = json.loads(capsys.readouterr().out)
-    assert prediction["prediction"] in CLASSES and len(prediction["top5"]) == 4
+    assert prediction["prediction"] in fake_cub.classes and len(prediction["top5"]) == 4
 
-    main(["train", "--config", config, "--resume", str(last), *_overrides(fake_cub), "train.epochs=3"])
+    main(["train", "--config", config, "--resume", str(last), *fake_cub.overrides, "train.epochs=3"])
     resumed_dir = max(outputs.glob("cls_scratch_2*"), key=lambda p: p.stat().st_mtime)
     epochs = [json.loads(line)["epoch"] for line in (resumed_dir / "metrics.jsonl").read_text().splitlines()]
     assert epochs == [1, 2, 3]       # earlier epochs re-logged, then epoch 3 trained
