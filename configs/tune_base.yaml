@@ -1,7 +1,7 @@
 # Shared settings for every tuning trial. tune_grid.yaml and tune_random.yaml
 # both inherit this, so the two methods are compared on exactly the same
 # model, data, seed and per-trial budget; only the values they try differ.
-defaults: cls_scratch.yaml
+defaults: cls_scratch_residual.yaml
 
 data:
   augment: light            # <- set to the winner of the augmentation ablation
