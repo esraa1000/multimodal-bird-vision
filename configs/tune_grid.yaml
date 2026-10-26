@@ -4,7 +4,7 @@
 defaults: tune_base.yaml
 
 tune:
-  name: tune_grid_v1        # W&B group and output folder; change it for a new search
+  name: tune_grid_v2        # W&B group and output folder (v2: residual model; v1 ran on the plain CNN by mistake)
   method: grid
   metric: best/val_acc      # maximized
   space:
