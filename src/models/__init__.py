@@ -6,6 +6,7 @@ modules here so they register.
 """
 
 from src.models import scratch_cnn  # noqa: F401  (registers "scratch_cnn")
+from src.models import vgg_cnn  # noqa: F401
 from src.models.base import Classifier, Encoder
 from src.models.factory import build_classifier
 

@@ -1,0 +1,28 @@
+
+# VGG-style CNN encoder trained from scratch
+defaults: [base.yaml, tracker_wandb.yaml]
+
+task: classification
+run_name: cls_vgg
+
+tracker:
+  tags: [classification, scratch, vgg_cnn]
+
+model:
+  name: vgg_cnn
+  num_classes: 200
+  dropout: 0.3
+  params:
+    width: 32
+    in_channels: 3
+    num_convs: 2
+
+data:
+  augment: light
+  normalize: dataset
+
+train:
+  epochs: 40
+  lr: 1.0e-3
+  warmup_epochs: 2
+  label_smoothing: 0.1
