@@ -1,0 +1,33 @@
+
+# EfficientNet-B0 fine-tuning experiment
+defaults: [base.yaml, tracker_wandb.yaml]
+
+task: classification
+run_name: cls_efficientnet_finetune_v1
+
+tracker:
+  tags: [classification, transfer, efficientnet_b0, finetuning]
+
+model:
+  name: timm_encoder
+  num_classes: 200
+
+  params:
+    backbone: efficientnet_b0
+    pretrained: true
+    in_channels: 3
+
+  freeze_backbone: false
+  head_type: mlp
+  head_hidden_dim: 512
+  head_dropout: 0.3
+
+data:
+  augment: light
+  normalize: imagenet
+
+train:
+  epochs: 25
+  lr: 1.0e-5
+  warmup_epochs: 2
+  label_smoothing: 0.1
