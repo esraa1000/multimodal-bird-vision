@@ -1,0 +1,62 @@
+seed: 42
+deterministic: false
+device: auto
+run_name: cls_resnet50_frozen_strong
+paths:
+  data_dir: data
+  data_dir_colab: /content/data
+  data_dir_kaggle: /kaggle/working/data
+  output_dir: outputs
+tracker:
+  name: wandb
+  project: multimodal-bird-vision
+  entity: deep_learning_birds
+  mode: online
+  tags:
+  - classification
+  - transfer
+  - resnet50
+  - frozen_encoder
+  - linear_head
+data:
+  img_size: 224
+  batch_size: 16
+  num_workers: 2
+  val_fraction: 0.1
+  split_file: configs/data/split_seed42.json
+  augment: strong
+  normalize: imagenet
+train:
+  epochs: 25
+  lr: 0.001
+  weight_decay: 0.05
+  optimizer: adamw
+  scheduler: cosine
+  warmup_epochs: 0
+  min_lr: 0.0
+  label_smoothing: 0.0
+  amp: true
+  grad_clip: null
+  early_stopping_patience: 8
+  max_batches: null
+  upload_checkpoint: true
+  progress: true
+  resume: null
+task: classification
+model:
+  name: timm_encoder
+  num_classes: 200
+  params:
+    backbone: resnet50
+    pretrained: true
+  freeze_backbone: true
+  head_type: linear
+  backbone_lr_mult: 0.1
+meta:
+  mode: train
+  git_commit: 5452518-dirty
+  environment: local
+  device: cuda
+  torch: 2.14.1+cu130
+  gpu: NVIDIA GeForce RTX 5060 Laptop GPU
+  gpu_memory_gb: 8.5

@@ -9,6 +9,9 @@ from src.registry import MODELS
 
 
 def build_classifier(model_cfg: dict):
+    if (model_cfg.get("freeze_backbone", False)
+            and (model_cfg.get("params") or {}).get("trainable_stages") is not None):
+        raise ValueError("Set freeze_backbone=false when selecting trainable_stages")
     encoder = MODELS.build(
         model_cfg["name"],
         **dict(model_cfg.get("params") or {}),

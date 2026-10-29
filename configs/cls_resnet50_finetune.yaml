@@ -1,0 +1,26 @@
+# New experiment initialized from the best frozen/light baseline (epoch 16).
+defaults: cls_resnet50.yaml
+
+run_name: cls_resnet50_layer4_finetune_light
+
+tracker:
+  tags: [classification, transfer, resnet50, layer4_finetune, light, linear_head]
+
+model:
+  params:
+    pretrained: false       # weights are loaded from init_checkpoint below
+    trainable_stages: [layer4]
+  freeze_backbone: false    # earlier stages are frozen by trainable_stages
+  backbone_lr_mult: 0.1     # layer4: 1e-5; classification head: 1e-4
+
+data:
+  img_size: 224
+  batch_size: 16
+  augment: light
+  normalize: imagenet
+
+train:
+  init_checkpoint: outputs/cls_resnet50_frozen_20261029-034949/best.pt
+  resume: null
+  epochs: 15
+  lr: 1.0e-4

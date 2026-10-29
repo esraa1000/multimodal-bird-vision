@@ -1,0 +1,14 @@
+# Trial 4: same setup as trial 3, changing only encoder BatchNorm statistics.
+defaults: cls_resnet50_finetune.yaml
+
+run_name: cls_resnet50_layer4_finetune_bn_frozen_light
+
+tracker:
+  tags: [classification, transfer, resnet50, layer4_finetune, bn_stats_frozen, light]
+
+model:
+  params:
+    freeze_bn_stats: true
+
+train:
+  validate_before_training: true

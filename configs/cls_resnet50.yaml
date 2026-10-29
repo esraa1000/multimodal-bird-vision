@@ -1,21 +1,24 @@
-# Transfer learning from ImageNet (owner: M4).
+# ResNet-50 transfer learning: frozen ImageNet encoder, trainable linear head.
 defaults: [base.yaml, tracker_wandb.yaml]
 task: classification
-run_name: cls_resnet50
+run_name: cls_resnet50_frozen
 
 tracker:
-  tags: [classification, transfer]
+  tags: [classification, transfer, resnet50, frozen_encoder, linear_head]
 
 model:
   name: timm_encoder
   num_classes: 200
-  params:                  # passed to the "timm_encoder" class (not written yet)
+  params:                  # passed to TimmEncoder
     backbone: resnet50
     pretrained: true
-  freeze_backbone: false   # true = linear probe (only the head trains)
+  freeze_backbone: true    # only the new 200-class head trains
+  head_type: linear
   backbone_lr_mult: 0.1    # smaller LR for pretrained layers when fine-tuning
 
 data:
+  img_size: 224
+  batch_size: 16
   augment: light
   normalize: imagenet
 

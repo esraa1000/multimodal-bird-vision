@@ -75,6 +75,63 @@ python -m src.cli train --config configs/cls_scratch.yaml paths.output_dir=/cont
 python -m src.cli train --config configs/cls_scratch.yaml paths.output_dir=/content/drive/MyDrive/bird-outputs --resume /content/drive/MyDrive/bird-outputs/<run>/last.pt
 ```
 
+### ResNet-50 transfer learning
+
+The selected frozen/light model achieved **69.64% test accuracy** and
+**69.53% test macro-F1** across 5,794 images. See the
+[four-trial experiment report](docs/resnet50_experiments.md) for configurations,
+validation comparisons, final test metrics, the W&B run, and saved evidence.
+
+### ResNet-50: fine-tune the final encoder stage
+
+`configs/cls_resnet50_finetune.yaml` starts a new experiment from the frozen/light
+baseline's `best.pt`. It trains only ResNet-50's `layer4` and the existing linear
+classifier. Earlier stages keep their weights and BatchNorm statistics fixed.
+The head starts at LR `1e-4`, layer4 at `1e-5`, with light augmentation, batch
+size 16, and up to 15 epochs. Optimizer, schedule, epoch count and early-stopping
+history start fresh; source model weights and buffers are loaded strictly.
+
+The config points to this machine's trial-1 checkpoint. On another machine,
+copy that checkpoint and override `train.init_checkpoint` with its location:
+
+```bash
+python -m src.cli train --config configs/cls_resnet50_finetune.yaml train.init_checkpoint=outputs/YOUR_BASELINE/best.pt
+```
+
+First check two batches without uploading, under a separate run name:
+
+```bash
+python -m src.cli train --config configs/cls_resnet50_finetune.yaml train.epochs=1 train.max_batches=2 tracker.name=local run_name=cls_resnet50_layer4_smoke
+```
+
+Then start the full fine-tuning experiment from the baseline (not the smoke run):
+
+```bash
+python -m src.cli train --config configs/cls_resnet50_finetune.yaml
+```
+
+To continue an interrupted fine-tuning run, use `--resume` with that run's
+`last.pt`; resume takes precedence over `train.init_checkpoint`. Do not resume
+the frozen baseline's optimizer into this experiment: its trainable parameters
+differ. Checkpoints also retain the partial-unfreezing config for evaluation.
+Select models on validation results and reserve the test set for final evaluation.
+
+For the controlled follow-up with encoder BatchNorm running statistics fixed:
+
+```bash
+python -m src.cli train --config configs/cls_resnet50_finetune_bn_frozen.yaml
+```
+
+This starts again from the original frozen/light baseline, with the same
+learning rates, light augmentation, batch size and 15-epoch budget as trial 3.
+Only the BatchNorm behavior changes: running means/variances stay fixed in all
+encoder stages, while layer4 weights (including BatchNorm scale/bias) and the
+classifier remain trainable. `initial/val_acc`, `initial/val_loss` and
+`initial/val_top5_acc` are logged before any updates. They are separate from
+epoch metrics and do not change checkpoint selection or early-stopping rules.
+Resumed runs skip this initial validation. A `train.max_batches` limit also
+limits initial validation; omit it for the actual full-split comparison.
+
 Experiments (each one is a separate tracked run):
 
 ```bash
@@ -170,8 +227,8 @@ tracker:
   # notes: First baseline experiment
 ```
 
-Classification, colorization, and captioning are still placeholders; use the
-debug task to check tracking until those tasks are implemented. Task code uses
+Classification supports training, evaluation, and prediction; colorization and
+captioning are still placeholders. The debug task can check tracking. Task code uses
 the existing `Tracker` interface: `log_metrics`, `log_summary`, `log_artifact`,
 and `log_figure`. Figures appear as W&B images and downloadable artifacts.
 The `step` argument is recorded as the `trainer/step` chart axis, independently

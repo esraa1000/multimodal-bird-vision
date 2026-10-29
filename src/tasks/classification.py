@@ -30,6 +30,7 @@ from src.registry import TASKS
 from src.tasks.base import Task
 from src.training import Trainer
 from src.utils.device import get_device
+from src.utils.paths import resolve_path
 from src.visualization.plots import plot_confusion_matrix, plot_top_confused_pairs
 
 
@@ -47,10 +48,26 @@ class ClassificationTask(Task):
             raise ValueError(f"model.num_classes is {cfg.model.num_classes} but the dataset has "
                              f"{len(class_names)} classes")
 
-        model = build_classifier(cfg.model)
+        init_checkpoint = cfg.train.get("init_checkpoint")
+        resume = cfg.train.get("resume")
+        model_cfg = copy.deepcopy(cfg.model.to_dict())
+        if init_checkpoint or resume:
+            # All weights come from the local checkpoint; no ImageNet download.
+            if "pretrained" in (model_cfg.get("params") or {}):
+                model_cfg["params"]["pretrained"] = False
+        model = build_classifier(model_cfg)
+        if init_checkpoint and not resume:
+            source = resolve_path(init_checkpoint)
+            state = torch.load(source, map_location="cpu", weights_only=False)
+            saved_names = state.get("extra", {}).get("class_names")
+            if saved_names is not None and list(saved_names) != class_names:
+                raise ValueError("Initial checkpoint species-label mapping differs from the dataset")
+            model.load_state_dict(state["model_state"], strict=True)
+            print(f"[classification] initialized model weights from {source} "
+                  f"(source epoch {state.get('epoch', '?')}); optimizer and schedule start fresh")
         trainer = Trainer(model, loaders["train"], loaders["val"], cfg, tracker, run_dir, device,
                           checkpoint_extra={"class_names": class_names})
-        return trainer.fit(resume_from=cfg.train.get("resume"))
+        return trainer.fit(resume_from=resume)
 
     # --------------------------------------------------------------- evaluate
 

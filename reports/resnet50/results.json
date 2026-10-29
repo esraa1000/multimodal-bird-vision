@@ -1,0 +1,485 @@
+{
+  "selected_trial": 1,
+  "selection_basis": "Best validation accuracy; macro-F1 also favored trial 1 over trial 4.",
+  "checkpoint": "outputs/cls_resnet50_frozen_20261029-034949/best.pt",
+  "checkpoint_sha256": "738156bd516175a1edfb4a8deecd7a49bd65b3a80c48053594f77a6969cbadcb",
+  "split_sizes": {
+    "train": 5390,
+    "val": 599,
+    "test": 5794
+  },
+  "trials": [
+    {
+      "trial": 1,
+      "source_run": "cls_resnet50_frozen_20261029-034949",
+      "summary": {
+        "best/val_acc": 0.6811352253756261,
+        "best/epoch": 16,
+        "epochs_trained": 24,
+        "stopped_early": true,
+        "model/params": 23917832,
+        "time/train_s": 2307.8,
+        "runtime_s": 2316.88
+      },
+      "best_epoch_metrics": {
+        "step": 16,
+        "time_s": 1561.18,
+        "train/loss": 0.6538657845504209,
+        "train/acc": 0.9322820037105751,
+        "train/top5_acc": 0.9910946196660483,
+        "val/loss": 1.3973180608876759,
+        "val/acc": 0.6811352253756261,
+        "val/top5_acc": 0.9065108514190318,
+        "lr": 0.00034549150281252644,
+        "epoch": 16,
+        "time/epoch_s": 89.2
+      }
+    },
+    {
+      "trial": 2,
+      "source_run": "cls_resnet50_frozen_strong_20261029-131424",
+      "summary": {
+        "best/val_acc": 0.667779632721202,
+        "best/epoch": 20,
+        "epochs_trained": 25,
+        "stopped_early": false,
+        "model/params": 23917832,
+        "time/train_s": 2671.1,
+        "runtime_s": 2697.94
+      },
+      "best_epoch_metrics": {
+        "step": 20,
+        "time_s": 2177.54,
+        "train/loss": 0.8887485407057852,
+        "train/acc": 0.8788497217068646,
+        "train/top5_acc": 0.9799628942486085,
+        "val/loss": 1.4738529446925066,
+        "val/acc": 0.667779632721202,
+        "val/top5_acc": 0.9081803005008348,
+        "lr": 0.00013551568628929433,
+        "epoch": 20,
+        "time/epoch_s": 109.9
+      }
+    },
+    {
+      "trial": 3,
+      "source_run": "cls_resnet50_layer4_finetune_light_20261029-150502",
+      "summary": {
+        "best/val_acc": 0.654424040066778,
+        "best/epoch": 12,
+        "epochs_trained": 15,
+        "stopped_early": false,
+        "model/params": 23917832,
+        "time/train_s": 1560.3,
+        "runtime_s": 1572.71
+      },
+      "best_epoch_metrics": {
+        "step": 12,
+        "time_s": 1265.0,
+        "train/loss": 0.3939925900416825,
+        "train/acc": 0.9207792207792208,
+        "train/top5_acc": 0.9899814471243042,
+        "val/loss": 1.278101987950193,
+        "val/acc": 0.654424040066778,
+        "val/top5_acc": 0.8948247078464107,
+        "lr": 1.654346968205711e-05,
+        "epoch": 12,
+        "time/epoch_s": 100.6
+      }
+    },
+    {
+      "trial": 4,
+      "source_run": "cls_resnet50_layer4_finetune_bn_frozen_light_20261029-160416",
+      "summary": {
+        "initial/val_loss": 1.3972885943016344,
+        "initial/val_acc": 0.6811352253756261,
+        "initial/val_top5_acc": 0.9065108514190318,
+        "best/val_acc": 0.674457429048414,
+        "best/epoch": 13,
+        "epochs_trained": 15,
+        "stopped_early": false,
+        "model/params": 23917832,
+        "time/train_s": 1603.3,
+        "runtime_s": 1613.29
+      },
+      "best_epoch_metrics": {
+        "step": 13,
+        "time_s": 1398.75,
+        "train/loss": 0.13552002866436244,
+        "train/acc": 0.9703153988868275,
+        "train/top5_acc": 0.9970315398886828,
+        "val/loss": 1.3220894034199404,
+        "val/acc": 0.674457429048414,
+        "val/top5_acc": 0.9081803005008348,
+        "lr": 9.549150281252635e-06,
+        "epoch": 13,
+        "time/epoch_s": 105.1
+      }
+    }
+  ],
+  "validation_evaluations": {
+    "1": {
+      "split": "val",
+      "checkpoint": "outputs\\cls_resnet50_frozen_20261029-034949\\best.pt",
+      "acc": 0.6811352253756261,
+      "top5_acc": 0.9065108514190318,
+      "precision_macro": 0.7042380952380952,
+      "recall_macro": 0.6816666666666668,
+      "f1_macro": 0.6694411976911977,
+      "num_images": 599,
+      "top_confused_pairs": [
+        {
+          "true_id": 185,
+          "true_name": "Cedar Waxwing",
+          "pred_id": 184,
+          "pred_name": "Bohemian Waxwing",
+          "count": 2
+        },
+        {
+          "true_id": 129,
+          "true_name": "Tree Sparrow",
+          "pred_id": 117,
+          "pred_name": "House Sparrow",
+          "count": 2
+        },
+        {
+          "true_id": 111,
+          "true_name": "Great Grey Shrike",
+          "pred_id": 110,
+          "pred_name": "Loggerhead Shrike",
+          "count": 2
+        },
+        {
+          "true_id": 154,
+          "true_name": "Warbling Vireo",
+          "pred_id": 152,
+          "pred_name": "Philadelphia Vireo",
+          "count": 2
+        },
+        {
+          "true_id": 120,
+          "true_name": "Grasshopper Sparrow",
+          "pred_id": 112,
+          "pred_name": "Baird Sparrow",
+          "count": 2
+        },
+        {
+          "true_id": 40,
+          "true_name": "Scissor tailed Flycatcher",
+          "pred_id": 77,
+          "pred_name": "Gray Kingbird",
+          "count": 2
+        },
+        {
+          "true_id": 38,
+          "true_name": "Least Flycatcher",
+          "pred_id": 36,
+          "pred_name": "Acadian Flycatcher",
+          "count": 2
+        },
+        {
+          "true_id": 24,
+          "true_name": "Pelagic Cormorant",
+          "pred_id": 22,
+          "pred_name": "Brandt Cormorant",
+          "count": 2
+        },
+        {
+          "true_id": 197,
+          "true_name": "Rock Wren",
+          "pred_id": 195,
+          "pred_name": "House Wren",
+          "count": 1
+        },
+        {
+          "true_id": 185,
+          "true_name": "Cedar Waxwing",
+          "pred_id": 111,
+          "pred_name": "Great Grey Shrike",
+          "count": 1
+        },
+        {
+          "true_id": 196,
+          "true_name": "Marsh Wren",
+          "pred_id": 195,
+          "pred_name": "House Wren",
+          "count": 1
+        },
+        {
+          "true_id": 196,
+          "true_name": "Marsh Wren",
+          "pred_id": 194,
+          "pred_name": "Carolina Wren",
+          "count": 1
+        },
+        {
+          "true_id": 136,
+          "true_name": "Cliff Swallow",
+          "pred_id": 77,
+          "pred_name": "Gray Kingbird",
+          "count": 1
+        },
+        {
+          "true_id": 179,
+          "true_name": "Wilson Warbler",
+          "pred_id": 54,
+          "pred_name": "Evening Grosbeak",
+          "count": 1
+        },
+        {
+          "true_id": 173,
+          "true_name": "Palm Warbler",
+          "pred_id": 182,
+          "pred_name": "Northern Waterthrush",
+          "count": 1
+        }
+      ]
+    },
+    "4": {
+      "split": "val",
+      "checkpoint": "outputs\\cls_resnet50_layer4_finetune_bn_frozen_light_20261029-160416\\best.pt",
+      "acc": 0.674457429048414,
+      "top5_acc": 0.9081803005008348,
+      "precision_macro": 0.6975277777777776,
+      "recall_macro": 0.675,
+      "f1_macro": 0.6585689033189033,
+      "num_images": 599,
+      "top_confused_pairs": [
+        {
+          "true_id": 154,
+          "true_name": "Warbling Vireo",
+          "pred_id": 152,
+          "pred_name": "Philadelphia Vireo",
+          "count": 3
+        },
+        {
+          "true_id": 101,
+          "true_name": "Western Wood Pewee",
+          "pred_id": 38,
+          "pred_name": "Least Flycatcher",
+          "count": 2
+        },
+        {
+          "true_id": 114,
+          "true_name": "Brewer Sparrow",
+          "pred_id": 130,
+          "pred_name": "Vesper Sparrow",
+          "count": 2
+        },
+        {
+          "true_id": 111,
+          "true_name": "Great Grey Shrike",
+          "pred_id": 110,
+          "pred_name": "Loggerhead Shrike",
+          "count": 2
+        },
+        {
+          "true_id": 185,
+          "true_name": "Cedar Waxwing",
+          "pred_id": 184,
+          "pred_name": "Bohemian Waxwing",
+          "count": 2
+        },
+        {
+          "true_id": 123,
+          "true_name": "Le Conte Sparrow",
+          "pred_id": 122,
+          "pred_name": "Henslow Sparrow",
+          "count": 2
+        },
+        {
+          "true_id": 61,
+          "true_name": "Herring Gull",
+          "pred_id": 58,
+          "pred_name": "California Gull",
+          "count": 2
+        },
+        {
+          "true_id": 28,
+          "true_name": "American Crow",
+          "pred_id": 29,
+          "pred_name": "Fish Crow",
+          "count": 2
+        },
+        {
+          "true_id": 38,
+          "true_name": "Least Flycatcher",
+          "pred_id": 36,
+          "pred_name": "Acadian Flycatcher",
+          "count": 2
+        },
+        {
+          "true_id": 36,
+          "true_name": "Acadian Flycatcher",
+          "pred_id": 42,
+          "pred_name": "Yellow bellied Flycatcher",
+          "count": 2
+        },
+        {
+          "true_id": 24,
+          "true_name": "Pelagic Cormorant",
+          "pred_id": 22,
+          "pred_name": "Brandt Cormorant",
+          "count": 2
+        },
+        {
+          "true_id": 199,
+          "true_name": "Common Yellowthroat",
+          "pred_id": 194,
+          "pred_name": "Carolina Wren",
+          "count": 1
+        },
+        {
+          "true_id": 144,
+          "true_name": "Elegant Tern",
+          "pred_id": 142,
+          "pred_name": "Caspian Tern",
+          "count": 1
+        },
+        {
+          "true_id": 125,
+          "true_name": "Nelson Sharp tailed Sparrow",
+          "pred_id": 117,
+          "pred_name": "House Sparrow",
+          "count": 1
+        },
+        {
+          "true_id": 197,
+          "true_name": "Rock Wren",
+          "pred_id": 195,
+          "pred_name": "House Wren",
+          "count": 1
+        }
+      ]
+    }
+  },
+  "final_test": {
+    "split": "test",
+    "checkpoint": "outputs\\cls_resnet50_frozen_20261029-034949\\best.pt",
+    "acc": 0.696410079392475,
+    "top5_acc": 0.9169830859509838,
+    "precision_macro": 0.7047657121196568,
+    "recall_macro": 0.6991921462007078,
+    "f1_macro": 0.6952884313856538,
+    "num_images": 5794,
+    "top_confused_pairs": [
+      {
+        "true_id": 144,
+        "true_name": "Elegant Tern",
+        "pred_id": 142,
+        "pred_name": "Caspian Tern",
+        "count": 12
+      },
+      {
+        "true_id": 142,
+        "true_name": "Caspian Tern",
+        "pred_id": 144,
+        "pred_name": "Elegant Tern",
+        "count": 12
+      },
+      {
+        "true_id": 28,
+        "true_name": "American Crow",
+        "pred_id": 29,
+        "pred_name": "Fish Crow",
+        "count": 11
+      },
+      {
+        "true_id": 21,
+        "true_name": "Chuck will Widow",
+        "pred_id": 104,
+        "pred_name": "Whip poor Will",
+        "count": 9
+      },
+      {
+        "true_id": 101,
+        "true_name": "Western Wood Pewee",
+        "pred_id": 39,
+        "pred_name": "Olive sided Flycatcher",
+        "count": 9
+      },
+      {
+        "true_id": 59,
+        "true_name": "Glaucous winged Gull",
+        "pred_id": 65,
+        "pred_name": "Western Gull",
+        "count": 8
+      },
+      {
+        "true_id": 145,
+        "true_name": "Forsters Tern",
+        "pred_id": 143,
+        "pred_name": "Common Tern",
+        "count": 8
+      },
+      {
+        "true_id": 49,
+        "true_name": "Eared Grebe",
+        "pred_id": 50,
+        "pred_name": "Horned Grebe",
+        "count": 8
+      },
+      {
+        "true_id": 154,
+        "true_name": "Warbling Vireo",
+        "pred_id": 153,
+        "pred_name": "Red eyed Vireo",
+        "count": 8
+      },
+      {
+        "true_id": 66,
+        "true_name": "Anna Hummingbird",
+        "pred_id": 68,
+        "pred_name": "Rufous Hummingbird",
+        "count": 8
+      },
+      {
+        "true_id": 58,
+        "true_name": "California Gull",
+        "pred_id": 65,
+        "pred_name": "Western Gull",
+        "count": 8
+      },
+      {
+        "true_id": 182,
+        "true_name": "Northern Waterthrush",
+        "pred_id": 183,
+        "pred_name": "Louisiana Waterthrush",
+        "count": 7
+      },
+      {
+        "true_id": 53,
+        "true_name": "Blue Grosbeak",
+        "pred_id": 13,
+        "pred_name": "Indigo Bunting",
+        "count": 7
+      },
+      {
+        "true_id": 55,
+        "true_name": "Pine Grosbeak",
+        "pred_id": 34,
+        "pred_name": "Purple Finch",
+        "count": 7
+      },
+      {
+        "true_id": 70,
+        "true_name": "Long tailed Jaeger",
+        "pred_id": 71,
+        "pred_name": "Pomarine Jaeger",
+        "count": 7
+      }
+    ]
+  },
+  "wandb": {
+    "url": "https://forge.coreweave.com/wandb/deep_learning_birds/multimodal-bird-vision/runs/shvozh2k",
+    "run_id": "shvozh2k",
+    "metrics": {
+      "test/acc": 0.696410079392475,
+      "test/top5_acc": 0.9169830859509838,
+      "test/precision_macro": 0.7047657121196568,
+      "test/recall_macro": 0.6991921462007078,
+      "test/f1_macro": 0.6952884313856538,
+      "test/num_images": 5794
+    }
+  }
+}

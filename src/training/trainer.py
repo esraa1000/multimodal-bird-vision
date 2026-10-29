@@ -83,6 +83,24 @@ class Trainer:
         stopped_early = False
         t_start = time.time()
 
+        if self.t.get("validate_before_training", False) and not resume_from:
+            # Measuring initialization must not change the subsequent training
+            # shuffle/dropout sequence. The loaders can share one generator.
+            generator = getattr(self.val_loader, "generator", None)
+            generator_state = generator.get_state() if generator is not None else None
+            try:
+                with torch.random.fork_rng(devices=[self.device] if self.device.type == "cuda" else []):
+                    initial = self._run_epoch(self.val_loader, train=False,
+                                              desc="initial validation (no updates)")
+            finally:
+                if generator is not None:
+                    generator.set_state(generator_state)
+            initial_metrics = {f"initial/val_{k}": v for k, v in initial.items()}
+            self.tracker.log_metrics(initial_metrics, step=0)
+            self.tracker.log_summary(initial_metrics)
+            print(f"[trainer] before training: val/acc={initial['acc']:.4f} "
+                  f"val/loss={initial['loss']:.4f}")
+
         for epoch in range(self.start_epoch, self.epochs + 1):
             t0 = time.time()
             lr = self.optimizer.param_groups[-1]["lr"]   # the head's lr (the last group)
