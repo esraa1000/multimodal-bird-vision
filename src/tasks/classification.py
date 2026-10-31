@@ -22,7 +22,7 @@ from PIL import Image
 
 from src.config import Config, deep_merge
 from src.data import build_dataloaders
-from src.data.transforms import build_transforms
+from src.data.transforms import build_transforms, get_mean_std
 from src.evaluation.metrics import (classification_metrics, confusion_matrix, per_class_metrics,
                                     top_confused_pairs)
 from src.models import build_classifier
@@ -30,8 +30,9 @@ from src.registry import TASKS
 from src.tasks.base import Task
 from src.training import Trainer
 from src.utils.device import get_device
-from src.utils.paths import resolve_path
-from src.visualization.plots import plot_confusion_matrix, plot_top_confused_pairs
+from src.utils.paths import make_run_dir, resolve_path
+from src.visualization.gradcam import compute_gradcam
+from src.visualization.plots import plot_confusion_matrix, plot_gradcam, plot_top_confused_pairs
 
 
 @TASKS.register("classification")
@@ -115,17 +116,46 @@ class ClassificationTask(Task):
         model, ckpt_cfg, class_names, device = self._load(checkpoint)
         data = ckpt_cfg.get("data", {})
         transform = build_transforms(False, data.get("img_size", 224), "none", data.get("normalize", "dataset"))
-        x = transform(Image.open(image_path).convert("RGB")).unsqueeze(0).to(device)
+        with Image.open(image_path) as source:
+            image = source.convert("RGB")
+        x = transform(image).unsqueeze(0).to(device)
+        label = options.get("label")
+        if label is not None and not 0 <= label < len(class_names):
+            raise ValueError(f"Label must be between 0 and {len(class_names) - 1}")
 
-        with torch.no_grad():
-            probs = model(x).softmax(dim=1)[0].cpu()
+        if options.get("gradcam"):
+            explanation = compute_gradcam(model, x, options.get("gradcam_class"))
+            probs = explanation["logits"].softmax(dim=1)[0].cpu()
+        else:
+            with torch.no_grad():
+                probs = model(x).softmax(dim=1)[0].cpu()
         conf, idx = probs.topk(min(5, len(class_names)))
         top5 = [{"class_id": int(i), "name": class_names[i], "confidence": round(float(c), 4)}
                 for c, i in zip(conf, idx)]
-        result = {"image": str(image_path), "prediction": top5[0]["name"],
+        result = {"image": str(image_path), "prediction_id": top5[0]["class_id"], "prediction": top5[0]["name"],
                   "confidence": top5[0]["confidence"], "top5": top5}
+        if label is not None:
+            result.update(label_id=label, label=class_names[label], correct=label == result["prediction_id"])
         if options.get("gradcam"):
-            result["gradcam"] = "not implemented yet (planned: src/visualization/gradcam.py)"
+            target = explanation["class_id"]
+            out_dir = make_run_dir(options.get("output_dir") or self.cfg.get_path("paths.output_dir", "outputs"),
+                                   f"gradcam_{image_path.stem}")
+            title = (f"Prediction: {result['prediction']} ({result['confidence']:.1%}) | "
+                     f"Explained class: {class_names[target]}")
+            if label is not None:
+                title += f"\nTrue label: {class_names[label]} | {'Correct' if result['correct'] else 'Incorrect'}"
+            mean, std = get_mean_std(data.get("normalize", "dataset"))
+            result["gradcam"] = {
+                "class_id": target, "class_name": class_names[target], "layer": explanation["layer"],
+                "feature_map_size": explanation["feature_map_size"],
+                "positive_evidence": bool(explanation["heatmap"].max() > 0),
+                **plot_gradcam(image, x, explanation["heatmap"], mean, std, out_dir, title),
+            }
+            result["gradcam"]["metadata"] = str(out_dir / "prediction.json")
+            with open(out_dir / "prediction.json", "w", encoding="utf-8") as stream:
+                json.dump({"checkpoint": str(checkpoint), "preprocessing": {
+                    "img_size": data.get("img_size", 224), "normalize": data.get("normalize", "dataset")},
+                    **result}, stream, indent=2)
         return result
 
     # ---------------------------------------------------------------- helpers

@@ -12,13 +12,50 @@ import matplotlib.ticker  # noqa: E402
 import numpy as np  # noqa: E402
 
 
-def _save(fig, out_path: str | Path) -> Path:
+def _save(fig, out_path: str | Path, rect=None) -> Path:
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.tight_layout()
+    fig.tight_layout(rect=rect)
     fig.savefig(out_path, dpi=120, bbox_inches="tight")
     plt.close(fig)
     return out_path
+
+
+def plot_gradcam(image, normalized_input, heatmap, mean, std, out_dir: Path,
+                 title: str) -> dict[str, str]:
+    """Save the exact model crop, raw map, overlay, and a labeled comparison.
+
+    Inverse normalization avoids resizing a cropped heatmap onto the uncropped
+    original. Overlay opacity follows map intensity; zero evidence leaves the
+    underlying image unchanged.
+    """
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    x = normalized_input.detach().float().cpu().numpy()[0]
+    rgb = np.clip(x * np.asarray(std)[:, None, None] + np.asarray(mean)[:, None, None], 0, 1)
+    rgb = np.moveaxis(rgb, 0, -1)
+    cam = heatmap.detach().cpu().numpy()
+    colors = plt.get_cmap("jet")(cam)[..., :3]
+    alpha = 0.5 * cam[..., None]
+    overlay = np.clip((1 - alpha) * rgb + alpha * colors, 0, 1)
+    np.save(out_dir / "heatmap.npy", cam)
+    plt.imsave(out_dir / "input.png", rgb)
+    plt.imsave(out_dir / "heatmap.png", cam, cmap="jet", vmin=0, vmax=1)
+    plt.imsave(out_dir / "overlay.png", overlay)
+    fig, axes = plt.subplots(1, 4, figsize=(14, 4))
+    for ax, pixels, label in zip(axes, [image, rgb, cam, overlay],
+                                 ["Original image", "Model input crop", "Grad-CAM", "Overlay"]):
+        if label == "Grad-CAM":
+            ax.imshow(pixels, cmap="jet", vmin=0, vmax=1)
+        else:
+            ax.imshow(pixels)
+        ax.set_title(label)
+        ax.axis("off")
+    fig.suptitle(title, fontsize=11)
+    _save(fig, out_dir / "comparison.png", rect=(0, 0, 1, 0.87))
+    return {key: str(out_dir / filename) for key, filename in {
+        "input": "input.png", "heatmap": "heatmap.png", "heatmap_array": "heatmap.npy",
+        "overlay": "overlay.png", "comparison": "comparison.png"}.items()}
 
 
 def plot_training_curves(history: list[dict], out_path: str | Path) -> Path:

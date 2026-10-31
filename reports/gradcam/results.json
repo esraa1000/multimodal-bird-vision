@@ -1,0 +1,330 @@
+{
+  "split": "validation",
+  "num_candidates": 599,
+  "selection_rule": "First alphabetically named image from each distinct species satisfying each correctness group; no selection by heatmap appearance.",
+  "validation_correct_counts_fp32": {
+    "scratch": 369,
+    "resnet50": 408,
+    "efficientnet": 466
+  },
+  "verification": {
+    "scratch": {
+      "checkpoint": "outputs/gradcam_checkpoints/scratch/best.pt",
+      "sha256_before": "bac1c513bb36add6e7b6072371b78c65e65d4d2ad40d1a29a605b96e6f881ee4",
+      "parameters_and_buffers_unchanged": true,
+      "parameter_gradients_untouched": true,
+      "prediction_matches_plain_forward": true,
+      "target_layer": "encoder.feature_map",
+      "feature_map_size": [
+        14,
+        14
+      ],
+      "model_config": {
+        "name": "scratch_cnn",
+        "num_classes": 200,
+        "dropout": 0.3,
+        "params": {
+          "depth": 4,
+          "width": 64,
+          "blocks_per_stage": 2,
+          "residual": true
+        }
+      },
+      "preprocessing": {
+        "img_size": 224,
+        "normalize": "dataset"
+      },
+      "sha256_after": "bac1c513bb36add6e7b6072371b78c65e65d4d2ad40d1a29a605b96e6f881ee4"
+    },
+    "resnet50": {
+      "checkpoint": "outputs/cls_resnet50_frozen_20261029-034949/best.pt",
+      "sha256_before": "738156bd516175a1edfb4a8deecd7a49bd65b3a80c48053594f77a6969cbadcb",
+      "parameters_and_buffers_unchanged": true,
+      "parameter_gradients_untouched": true,
+      "prediction_matches_plain_forward": true,
+      "target_layer": "encoder.feature_map",
+      "feature_map_size": [
+        7,
+        7
+      ],
+      "model_config": {
+        "name": "timm_encoder",
+        "num_classes": 200,
+        "params": {
+          "backbone": "resnet50",
+          "pretrained": true
+        },
+        "freeze_backbone": true,
+        "head_type": "linear",
+        "backbone_lr_mult": 0.1
+      },
+      "preprocessing": {
+        "img_size": 224,
+        "normalize": "imagenet"
+      },
+      "sha256_after": "738156bd516175a1edfb4a8deecd7a49bd65b3a80c48053594f77a6969cbadcb"
+    },
+    "efficientnet": {
+      "checkpoint": "outputs/gradcam_checkpoints/efficientnet/best.pt",
+      "sha256_before": "56b210aa7ab8191970b839225f5e6058b95cfa4100b469d2e682552869ed2e46",
+      "parameters_and_buffers_unchanged": true,
+      "parameter_gradients_untouched": true,
+      "prediction_matches_plain_forward": true,
+      "target_layer": "encoder.feature_map",
+      "feature_map_size": [
+        7,
+        7
+      ],
+      "model_config": {
+        "name": "timm_encoder",
+        "num_classes": 200,
+        "params": {
+          "backbone": "efficientnet_b0",
+          "pretrained": true,
+          "in_channels": 3
+        },
+        "freeze_backbone": true,
+        "head_type": "mlp",
+        "head_hidden_dim": 512,
+        "head_dropout": 0.4
+      },
+      "preprocessing": {
+        "img_size": 224,
+        "normalize": "imagenet"
+      },
+      "sha256_after": "56b210aa7ab8191970b839225f5e6058b95cfa4100b469d2e682552869ed2e46"
+    }
+  },
+  "cases": [
+    {
+      "id": "case01",
+      "selection_group": "all_correct",
+      "file_name": "American_Goldfinch_0014_32154.jpg",
+      "label_id": 46,
+      "label": "American Goldfinch",
+      "image": "reports/gradcam/images/case01.png",
+      "models": {
+        "scratch": {
+          "prediction_id": 46,
+          "prediction": "American Goldfinch",
+          "confidence": 0.9828,
+          "correct": true,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case01/scratch/gradcam_case01_20261031-230056/prediction.json"
+        },
+        "resnet50": {
+          "prediction_id": 46,
+          "prediction": "American Goldfinch",
+          "confidence": 0.9067,
+          "correct": true,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case01/resnet50/gradcam_case01_20261031-230058/prediction.json"
+        },
+        "efficientnet": {
+          "prediction_id": 46,
+          "prediction": "American Goldfinch",
+          "confidence": 0.8493,
+          "correct": true,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case01/efficientnet/gradcam_case01_20261031-230059/prediction.json"
+        }
+      }
+    },
+    {
+      "id": "case02",
+      "selection_group": "all_correct",
+      "file_name": "American_Pipit_0002_100023.jpg",
+      "label_id": 103,
+      "label": "American Pipit",
+      "image": "reports/gradcam/images/case02.png",
+      "models": {
+        "scratch": {
+          "prediction_id": 103,
+          "prediction": "American Pipit",
+          "confidence": 0.2687,
+          "correct": true,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case02/scratch/gradcam_case02_20261031-230101/prediction.json"
+        },
+        "resnet50": {
+          "prediction_id": 103,
+          "prediction": "American Pipit",
+          "confidence": 0.5056,
+          "correct": true,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case02/resnet50/gradcam_case02_20261031-230103/prediction.json"
+        },
+        "efficientnet": {
+          "prediction_id": 103,
+          "prediction": "American Pipit",
+          "confidence": 0.8176,
+          "correct": true,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case02/efficientnet/gradcam_case02_20261031-230104/prediction.json"
+        }
+      }
+    },
+    {
+      "id": "case03",
+      "selection_group": "all_incorrect",
+      "file_name": "Acadian_Flycatcher_0054_29113.jpg",
+      "label_id": 36,
+      "label": "Acadian Flycatcher",
+      "image": "reports/gradcam/images/case03.png",
+      "models": {
+        "scratch": {
+          "prediction_id": 38,
+          "prediction": "Least Flycatcher",
+          "confidence": 0.5049,
+          "correct": false,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case03/scratch/gradcam_case03_20261031-230106/prediction.json",
+          "true_class_metadata": "outputs/gradcam_analysis/case03/scratch/gradcam_case03_20261031-230107/prediction.json"
+        },
+        "resnet50": {
+          "prediction_id": 38,
+          "prediction": "Least Flycatcher",
+          "confidence": 0.1487,
+          "correct": false,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case03/resnet50/gradcam_case03_20261031-230109/prediction.json",
+          "true_class_metadata": "outputs/gradcam_analysis/case03/resnet50/gradcam_case03_20261031-230111/prediction.json"
+        },
+        "efficientnet": {
+          "prediction_id": 38,
+          "prediction": "Least Flycatcher",
+          "confidence": 0.3764,
+          "correct": false,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case03/efficientnet/gradcam_case03_20261031-230112/prediction.json",
+          "true_class_metadata": "outputs/gradcam_analysis/case03/efficientnet/gradcam_case03_20261031-230114/prediction.json"
+        }
+      }
+    },
+    {
+      "id": "case04",
+      "selection_group": "all_incorrect",
+      "file_name": "American_Crow_0093_25694.jpg",
+      "label_id": 28,
+      "label": "American Crow",
+      "image": "reports/gradcam/images/case04.png",
+      "models": {
+        "scratch": {
+          "prediction_id": 106,
+          "prediction": "Common Raven",
+          "confidence": 0.3914,
+          "correct": false,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case04/scratch/gradcam_case04_20261031-230116/prediction.json",
+          "true_class_metadata": "outputs/gradcam_analysis/case04/scratch/gradcam_case04_20261031-230117/prediction.json"
+        },
+        "resnet50": {
+          "prediction_id": 106,
+          "prediction": "Common Raven",
+          "confidence": 0.2881,
+          "correct": false,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case04/resnet50/gradcam_case04_20261031-230119/prediction.json",
+          "true_class_metadata": "outputs/gradcam_analysis/case04/resnet50/gradcam_case04_20261031-230120/prediction.json"
+        },
+        "efficientnet": {
+          "prediction_id": 106,
+          "prediction": "Common Raven",
+          "confidence": 0.3388,
+          "correct": false,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case04/efficientnet/gradcam_case04_20261031-230121/prediction.json",
+          "true_class_metadata": "outputs/gradcam_analysis/case04/efficientnet/gradcam_case04_20261031-230123/prediction.json"
+        }
+      }
+    },
+    {
+      "id": "case05",
+      "selection_group": "scratch_wrong_efficientnet_correct",
+      "file_name": "American_Redstart_0013_103677.jpg",
+      "label_id": 108,
+      "label": "American Redstart",
+      "image": "reports/gradcam/images/case05.png",
+      "models": {
+        "scratch": {
+          "prediction_id": 97,
+          "prediction": "Scott Oriole",
+          "confidence": 0.266,
+          "correct": false,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case05/scratch/gradcam_case05_20261031-230124/prediction.json",
+          "true_class_metadata": "outputs/gradcam_analysis/case05/scratch/gradcam_case05_20261031-230126/prediction.json"
+        },
+        "resnet50": {
+          "prediction_id": 108,
+          "prediction": "American Redstart",
+          "confidence": 0.1542,
+          "correct": true,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case05/resnet50/gradcam_case05_20261031-230128/prediction.json"
+        },
+        "efficientnet": {
+          "prediction_id": 108,
+          "prediction": "American Redstart",
+          "confidence": 0.4142,
+          "correct": true,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case05/efficientnet/gradcam_case05_20261031-230129/prediction.json"
+        }
+      }
+    },
+    {
+      "id": "case06",
+      "selection_group": "resnet_correct_efficientnet_wrong",
+      "file_name": "Baltimore_Oriole_0133_87602.jpg",
+      "label_id": 94,
+      "label": "Baltimore Oriole",
+      "image": "reports/gradcam/images/case06.png",
+      "models": {
+        "scratch": {
+          "prediction_id": 94,
+          "prediction": "Baltimore Oriole",
+          "confidence": 0.4578,
+          "correct": true,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case06/scratch/gradcam_case06_20261031-230130/prediction.json"
+        },
+        "resnet50": {
+          "prediction_id": 94,
+          "prediction": "Baltimore Oriole",
+          "confidence": 0.8413,
+          "correct": true,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case06/resnet50/gradcam_case06_20261031-230132/prediction.json"
+        },
+        "efficientnet": {
+          "prediction_id": 157,
+          "prediction": "Bay breasted Warbler",
+          "confidence": 0.1316,
+          "correct": false,
+          "target_layer": "encoder.feature_map",
+          "positive_evidence": true,
+          "predicted_class_metadata": "outputs/gradcam_analysis/case06/efficientnet/gradcam_case06_20261031-230133/prediction.json",
+          "true_class_metadata": "outputs/gradcam_analysis/case06/efficientnet/gradcam_case06_20261031-230134/prediction.json"
+        }
+      }
+    }
+  ]
+}

@@ -114,7 +114,10 @@ def cmd_evaluate(args: argparse.Namespace) -> None:
 def cmd_predict(args: argparse.Namespace) -> None:
     cfg = _load(args)
     seed_everything(cfg.get("seed", 42))
-    options = {"gradcam": args.gradcam}
+    if not args.gradcam and (args.gradcam_class is not None or args.output_dir is not None):
+        raise SystemExit("--gradcam-class and --output-dir require --gradcam")
+    options = {"gradcam": args.gradcam, "gradcam_class": args.gradcam_class,
+               "output_dir": args.output_dir, "label": args.label}
     result = _build_task(cfg).predict(Path(args.ckpt), Path(args.image), **options)
     print(json.dumps(result, indent=2))
 
@@ -162,6 +165,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--ckpt", required=True, help="path to a .pt checkpoint")
     p.add_argument("--image", required=True, help="path to an image file")
     p.add_argument("--gradcam", action="store_true", help="also save a Grad-CAM heatmap")
+    p.add_argument("--gradcam-class", type=int, help="explain this class id; defaults to the predicted class")
+    p.add_argument("--label", type=int, help="known true class id, to mark the prediction correct or incorrect")
+    p.add_argument("--output-dir", help="parent folder for a unique Grad-CAM output directory")
     p.set_defaults(func=cmd_predict)
 
     p = sub.add_parser("tune", help="run (a shard of) a grid or random hyperparameter search")

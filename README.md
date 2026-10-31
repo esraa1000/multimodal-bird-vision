@@ -12,7 +12,7 @@ The integrated Milestone 1 branch is `integration/milestone1`. It combines the
 data pipeline, EDA, scratch-CNN experiments, grid/random tuning, EfficientNet,
 VGG-style CNN, and ResNet-50 experiments while preserving the original branch
 histories. Classification training, evaluation, and prediction are implemented.
-Grad-CAM is the next implementation step; colorization and captioning remain
+Grad-CAM is available for classification; colorization and captioning remain
 Milestone 2 placeholders.
 
 ## Setup
@@ -161,13 +161,31 @@ This writes `metrics.json` (accuracy, top-5, macro precision/recall/F1), `predic
 python -m src.cli predict --config configs/cls_scratch.yaml --ckpt outputs/<run>/best.pt --image bird.jpg
 ```
 
-For Grad-CAM development, the existing CLI flag is passed from `src/cli.py`
-to `ClassificationTask.predict` in `src/tasks/classification.py`. It currently
-returns a placeholder, not a heatmap. The implementation belongs in
-`src/visualization/`; all encoders expose spatial maps through
-`Encoder.forward_features`. Prediction normally uses `torch.no_grad()`, so the
-Grad-CAM path will need to enable gradients while keeping the model in evaluation
-mode. Use the preprocessing stored in the checkpoint when preparing its input.
+### Grad-CAM
+
+Explain a checkpoint's predicted class without retraining:
+
+```bash
+python -m src.cli predict --config configs/cls_resnet50.yaml --ckpt outputs/cls_resnet50_frozen_20261029-034949/best.pt --image reports/gradcam/images/case01.png --gradcam --label 46 --output-dir outputs/gradcam
+```
+
+`--label` is the optional zero-based true class ID; this example is American
+Goldfinch. `--gradcam-class ID` explains a chosen class instead of the prediction,
+which lets you contrast a wrong prediction with the true species. The same
+command supports scratch CNN and EfficientNet checkpoints by changing `--config`
+and `--ckpt`; architecture and preprocessing are restored from the checkpoint.
+
+Each call creates a unique directory containing the exact `input.png` crop,
+`heatmap.npy`, colored `heatmap.png`, `overlay.png`, four-panel `comparison.png`,
+and labeled `prediction.json`. Paths are returned in the CLI's JSON output.
+Heatmaps align with the model crop, not a stretched version of the original image.
+
+The implementation uses raw-logit gradients at the encoder's final spatial
+feature map. A parameter-free `Identity` hook point leaves existing checkpoint
+keys and predictions unchanged. Models remain in evaluation mode; no optimizer
+is used, and hooks are removed after each call, including errors. Fully frozen
+encoders are supported. See the [labeled comparison and verification report](docs/gradcam_analysis.md)
+for all three trained models, correct/incorrect cases, limitations, and reproduction.
 
 ## Hyperparameter tuning (grid vs. random search)
 

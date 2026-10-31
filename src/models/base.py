@@ -20,6 +20,12 @@ class Encoder(nn.Module, ABC):
 
     out_dim: int
 
+    def __init__(self):
+        super().__init__()
+        # Parameter-free hook point after the encoder's spatial computation.
+        # Identity leaves predictions and existing checkpoint state keys unchanged.
+        self.feature_map = nn.Identity()
+
     @abstractmethod
     def forward_features(self, x: torch.Tensor) -> torch.Tensor:
         """``(B, C_in, H, W)`` -> last feature map ``(B, out_dim, h, w)``.
@@ -30,7 +36,8 @@ class Encoder(nn.Module, ABC):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """``(B, C_in, H, W)`` -> ``(B, out_dim)`` by global average pooling."""
-        return torch.flatten(F.adaptive_avg_pool2d(self.forward_features(x), 1), 1)
+        features = self.feature_map(self.forward_features(x))
+        return torch.flatten(F.adaptive_avg_pool2d(features, 1), 1)
 
 
 class Classifier(nn.Module):
