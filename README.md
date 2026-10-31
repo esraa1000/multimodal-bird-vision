@@ -8,6 +8,13 @@ Multimodal deep learning on **CUB-200-2011** with captions: one CNN encoder, thr
 
 CSE488 course project.
 
+The integrated Milestone 1 branch is `integration/milestone1`. It combines the
+data pipeline, EDA, scratch-CNN experiments, grid/random tuning, EfficientNet,
+VGG-style CNN, and ResNet-50 experiments while preserving the original branch
+histories. Classification training, evaluation, and prediction are implemented.
+Grad-CAM is the next implementation step; colorization and captioning remain
+Milestone 2 placeholders.
+
 ## Setup
 
 ```bash
@@ -39,7 +46,7 @@ python -m src.cli list                                                     # reg
 python -m src.cli train    --config configs/cls_scratch.yaml
 python -m src.cli train    --config configs/cls_scratch.yaml train.lr=1e-3 train.epochs=5   # override any key
 python -m src.cli evaluate --config configs/cls_scratch.yaml --ckpt outputs/<run>/best.pt --split test
-python -m src.cli predict  --config configs/cls_scratch.yaml --ckpt outputs/<run>/best.pt --image bird.jpg --gradcam
+python -m src.cli predict  --config configs/cls_scratch.yaml --ckpt outputs/<run>/best.pt --image bird.jpg
 ```
 
 Each run writes to `outputs/<run_name>_<timestamp>/`:
@@ -154,6 +161,14 @@ This writes `metrics.json` (accuracy, top-5, macro precision/recall/F1), `predic
 python -m src.cli predict --config configs/cls_scratch.yaml --ckpt outputs/<run>/best.pt --image bird.jpg
 ```
 
+For Grad-CAM development, the existing CLI flag is passed from `src/cli.py`
+to `ClassificationTask.predict` in `src/tasks/classification.py`. It currently
+returns a placeholder, not a heatmap. The implementation belongs in
+`src/visualization/`; all encoders expose spatial maps through
+`Encoder.forward_features`. Prediction normally uses `torch.no_grad()`, so the
+Grad-CAM path will need to enable gradients while keeping the model in evaluation
+mode. Use the preprocessing stored in the checkpoint when preparing its input.
+
 ## Hyperparameter tuning (grid vs. random search)
 
 Both searches tune `train.lr`, `train.weight_decay` and `model.dropout` on the scratch CNN with the
@@ -169,8 +184,8 @@ python -m src.cli tune --config configs/tune_grid.yaml   --shard 1/4 paths.outpu
 python -m src.cli tune --config configs/tune_random.yaml --shard 1/4 paths.output_dir=/content/drive/MyDrive/bird-outputs
 ```
 
-Member 2 uses `--shard 2/4`, and so on. Each trial is a normal W&B run named `tune_grid_v1_t03`, in the group
-`tune_grid_v1`. Results are also appended to `<output_dir>/<tune.name>/results.jsonl`. If a session
+Member 2 uses `--shard 2/4`, and so on. Each trial is a normal W&B run named `tune_grid_v2_t03`, in the group
+`tune_grid_v2` (or `tune_random_v2` for random search). Results are also appended to `<output_dir>/<tune.name>/results.jsonl`. If a session
 disconnects, run the same command again: finished trials are skipped (`--rerun` forces them).
 A trial that diverges (for example, a too-high learning rate) is recorded as failed and the search continues.
 
@@ -187,7 +202,7 @@ This writes to `reports/tuning/`:
 - `tuning_comparison.png`: best-so-far curves and score vs. learning rate.
 
 Finally, retrain the best values for the full 40 epochs, for example:
-`python -m src.cli train --config configs/cls_scratch.yaml train.lr=... train.weight_decay=... model.dropout=... run_name=scratch_tuned`.
+`python -m src.cli train --config configs/cls_scratch_residual.yaml train.lr=... train.weight_decay=... model.dropout=... run_name=scratch_tuned`.
 
 ## Weights & Biases tracking
 
@@ -291,7 +306,14 @@ Import it in `src/models/__init__.py`, then set `model.name: scratch_cnn` in a c
 
 ## Team workflow
 
-- Create one branch per task (`feat/eda-captions`, `feat/gradcam`). Open a PR into `main` and get one review.
+- Create one branch per task (`feat/eda-captions`, `feat/gradcam`) from `integration/milestone1`. Open a PR back into that integration branch and get one review.
 - Commit from **your own** GitHub account, in small and frequent commits.
 - Notebooks are for experiments only. Final code lives in `src/` and runs through the CLI.
 - On Colab or Kaggle, use `notebooks/colab_runner.ipynb`: clone, install, run the CLI.
+
+Run the integrated code checks locally before starting a new feature:
+
+```bash
+python -m pytest tests -q -p no:cacheprovider
+python -m src.cli list
+```
