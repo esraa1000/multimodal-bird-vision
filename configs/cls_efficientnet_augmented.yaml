@@ -1,0 +1,33 @@
+
+# EfficientNet-B0 with strong data augmentation
+defaults: [base.yaml, tracker_wandb.yaml]
+
+task: classification
+run_name: cls_efficientnet_mlp_strong_aug_v1
+
+tracker:
+  tags: [classification, transfer, efficientnet_b0, mlp_head, strong_augmentation]
+
+model:
+  name: timm_encoder
+  num_classes: 200
+
+  params:
+    backbone: efficientnet_b0
+    pretrained: true
+    in_channels: 3
+
+  freeze_backbone: true
+  head_type: mlp
+  head_hidden_dim: 512
+  head_dropout: 0.4
+
+data:
+  augment: strong
+  normalize: imagenet
+
+train:
+  epochs: 25
+  lr: 1.0e-3
+  warmup_epochs: 2
+  label_smoothing: 0.1
