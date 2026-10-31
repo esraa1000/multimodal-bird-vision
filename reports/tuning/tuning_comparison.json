@@ -1,0 +1,53 @@
+{
+  "source": "wandb",
+  "target": 0.27716193656093485,
+  "target_rule": "overall best score - 0.02",
+  "methods": [
+    {
+      "name": "tune_grid_v2",
+      "method": "grid",
+      "trials_planned": 18,
+      "trials_completed": 18,
+      "trials_failed": 0,
+      "total_time_min": 183.8,
+      "mean_trial_time_min": 10.2,
+      "gpus": [
+        "Tesla T4"
+      ],
+      "best_score": 0.2938230383973289,
+      "best_trial_id": 6,
+      "best_params": {
+        "train.lr": 0.001,
+        "model.dropout": 0.1,
+        "train.weight_decay": 0.01
+      },
+      "mean_score": 0.24420330179929517,
+      "std_score": 0.03224628548215489,
+      "trials_to_best": 7,
+      "trials_to_target": 7
+    },
+    {
+      "name": "tune_random_v2",
+      "method": "random",
+      "trials_planned": 18,
+      "trials_completed": 18,
+      "trials_failed": 0,
+      "total_time_min": 167.1,
+      "mean_trial_time_min": 9.3,
+      "gpus": [
+        "Tesla T4"
+      ],
+      "best_score": 0.29716193656093487,
+      "best_trial_id": 15,
+      "best_params": {
+        "train.lr": 0.002667,
+        "model.dropout": 0.173,
+        "train.weight_decay": 0.02088
+      },
+      "mean_score": 0.24281209423112593,
+      "std_score": 0.035694047372758275,
+      "trials_to_best": 16,
+      "trials_to_target": 3
+    }
+  ]
+}
